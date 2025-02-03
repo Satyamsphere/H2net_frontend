@@ -1,25 +1,47 @@
-import React from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
+import React from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
-const StatCard = ({ icon, title, value, subtitle, trend }) => {
+const StatCard = ({
+  icon,
+  image,
+  imageAlt = "Stat Image",
+  title,
+  value,
+  subtitle,
+  trend,
+}) => {
   const getTrendBackground = (trend) => {
-    if (trend?.includes('-')) {
-      return 'bg-red-50';
-    } else if (trend?.includes('+')) {
-      return 'bg-green-50';
+    if (trend?.includes("-")) {
+      return "bg-red-50";
+    } else if (trend?.includes("+")) {
+      return "bg-green-50";
     }
-    return '';
+    return "";
   };
 
   return (
-    <div className="flex items-start space-x-2">
-      <div className="text-h2net-blue text-xl">{icon}</div>
+    <div className="flex items-start space-x-4 p-4 bg-white shadow-md rounded-lg">
+      {/* Show image if available, otherwise show icon */}
+      {image ? (
+        <img
+          src={image}
+          alt={imageAlt}
+          className="w-12 h-12 object-cover rounded-md"
+        />
+      ) : (
+        <div className="text-h2net-blue text-xl">{icon}</div>
+      )}
+
       <div>
         <div className="text-sm text-gray-600 text-left">{title}</div>
         <div className="flex items-center space-x-2">
           <span className="text-2xl font-semibold">{value}</span>
           {trend && (
-            <span className={`text-sm px-2 py-0.5 rounded ${getTrendBackground(trend)} ${trend.includes('-') ? 'text-red-600' : 'text-green-600'}`}>
+            <span
+              className={`text-sm px-2 py-0.5 rounded ${getTrendBackground(
+                trend
+              )} ${trend.includes("-") ? "text-red-600" : "text-green-600"}`}
+            >
               {trend}
             </span>
           )}
@@ -33,8 +55,10 @@ const StatCard = ({ icon, title, value, subtitle, trend }) => {
 const Navbar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const isAuthPage = ['/login', '/register', '/reset-password'].includes(location.pathname);
-  const isDashboard = location.pathname.startsWith('/dashboard');
+  const isAuthPage = ["/login", "/register", "/reset-password"].includes(
+    location.pathname
+  );
+  const isDashboard = location.pathname.startsWith("/dashboard");
 
   if (isDashboard) {
     return (
@@ -42,38 +66,42 @@ const Navbar = () => {
         <div className="max-w-full mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
             <Link to="/" className="text-h2net-blue font-bold text-2xl">
-              H2NET
+              <img
+                src="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/h2net_logo_thajb4.png"
+                alt="H2NET"
+              />
             </Link>
-            
+
             <div className="flex space-x-6 no-scrollbar">
               <StatCard
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584874/shop_nav_ceip4c.png"
                 icon="📊"
                 title="Total number of quotes"
                 value="266"
                 subtitle="Count of all quotes"
               />
               <StatCard
-                icon="📈"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584874/shop_nav_ceip4c.png"
                 title="Total number of quotes"
                 value="0"
                 trend="-10,000%"
                 subtitle="Since last month"
               />
               <StatCard
-                icon="📊"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584874/shop_nav_ceip4c.png"
                 title="Total number of quotes"
                 value="10"
                 trend="+1,000%"
                 subtitle="Rolling month"
               />
               <StatCard
-                icon="🏢"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/home_navbar_zslm4w.png"
                 title="Total number of sites"
                 value="15"
                 subtitle="Count of all sites"
               />
               <StatCard
-                icon="👥"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/contact_nav_ionvhb.png"
                 title="Total number of customers"
                 value="5"
                 subtitle="Count of all customers"
@@ -94,39 +122,43 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link to="/" className="text-h2net-blue font-bold text-2xl">
-            H2NET
+            <img
+              src="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/h2net_logo_thajb4.png"
+              alt="H2NET"
+            />
           </Link>
-          
+
           {!isAuthPage && (
             <div className="flex space-x-6 overflow-x-auto max-w-4xl">
               <StatCard
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584874/shop_nav_ceip4c.png"
                 icon="📊"
                 title="Total number of quotes"
                 value="266"
                 subtitle="Count of all quotes"
               />
               <StatCard
-                icon="📈"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584874/shop_nav_ceip4c.png"
                 title="Total number of quotes"
                 value="0"
                 trend="-10,000%"
                 subtitle="Since last month"
               />
               <StatCard
-                icon="📊"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584874/shop_nav_ceip4c.png"
                 title="Total number of quotes"
                 value="10"
                 trend="+1,000%"
                 subtitle="Rolling month"
               />
               <StatCard
-                icon="🏢"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/home_navbar_zslm4w.png"
                 title="Total number of sites"
                 value="15"
                 subtitle="Count of all sites"
               />
               <StatCard
-                icon="👥"
+                image="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/contact_nav_ionvhb.png"
                 title="Total number of customers"
                 value="5"
                 subtitle="Count of all customers"
@@ -136,13 +168,13 @@ const Navbar = () => {
 
           <div className="flex space-x-4">
             <button
-              onClick={() => navigate('/login')}
+              onClick={() => navigate("/login")}
               className="px-4 py-2 text-h2net-blue hover:text-white hover:bg-h2net-blue rounded-lg transition-all duration-300"
             >
               Login
             </button>
             <button
-              onClick={() => navigate('/register')}
+              onClick={() => navigate("/register")}
               className="px-4 py-2 bg-h2net-blue text-white rounded-lg hover:bg-blue-700 transition-all duration-300"
             >
               Register
