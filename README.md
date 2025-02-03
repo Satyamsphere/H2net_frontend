@@ -1,0 +1,1 @@
+To Run this App:- npm run dev
