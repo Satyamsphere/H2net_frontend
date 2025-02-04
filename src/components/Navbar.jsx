@@ -62,9 +62,9 @@ const Navbar = () => {
 
   if (isDashboard) {
     return (
-      <nav className="bg-white shadow-md">
-        <div className="max-w-full mx-auto px-4 py-3">
-          <div className="flex justify-between items-center">
+<nav className="bg-white shadow-md w-full">
+  <div className="mx-auto px-4 py-3">
+    <div className="flex justify-between items-center">
             <Link to="/" className="text-h2net-blue font-bold text-2xl">
               <img
                 src="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/h2net_logo_thajb4.png"
@@ -118,14 +118,14 @@ const Navbar = () => {
   }
 
   return (
-    <nav className="bg-white shadow-md">
-      <div className="max-w-7xl mx-auto px-4 py-3">
+    <nav className="bg-white">
+      <div className="max-7xl mx-auto px-4 py-3">
         <div className="flex justify-between items-center">
           <Link to="/" className="text-h2net-blue font-bold text-2xl">
-            <img
-              src="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/h2net_logo_thajb4.png"
-              alt="H2NET"
-            />
+          <img
+                src="https://res.cloudinary.com/dsdiqfrnj/image/upload/v1738584873/h2net_logo_thajb4.png"
+                alt="H2NET"
+              />
           </Link>
 
           {!isAuthPage && (

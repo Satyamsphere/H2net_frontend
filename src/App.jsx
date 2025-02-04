@@ -8,6 +8,9 @@ import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ResetPassword from './components/auth/ResetPassword';
 import Dashboard from './components/Dashboard';
+import OfficeFormManual from './components/Officedata/OfficeFormManual';
+import BulkuploadData from './components/Officedata/BulkuploadData'
+import { ToastContainer } from "react-toastify";
 import './App.css';
 
 function App() {
@@ -36,6 +39,8 @@ function App() {
           <Route path="/dashboard/*" element={
             isLoggedIn ? <Dashboard /> : <Navigate to="/login" replace />
           } />
+          <Route path="/office-form" element={<OfficeFormManual/>}/>
+          <Route path="/blulk-upload" element={<BulkuploadData/>}/>
         </Routes>
         <Footer />
       </div>

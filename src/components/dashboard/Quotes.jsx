@@ -13,45 +13,41 @@ const Quotes = () => {
           <NavLink
             to="/dashboard/quotes/list"
             className={({ isActive }) =>
-              `px-4 py-2 rounded-lg flex items-center space-x-2 ${
+              `px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300 ease-in-out ${
                 isActive ? 'bg-white shadow' : 'hover:bg-white/60'
               }`
             }
           >
-            <span className="material-icons">list</span>
             <span>Quote List</span>
           </NavLink>
           <NavLink
             to="/dashboard/quotes/dia"
             className={({ isActive }) =>
-              `px-4 py-2 rounded-lg flex items-center space-x-2 ${
+              `px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300 ease-in-out ${
                 isActive ? 'bg-white shadow' : 'hover:bg-white/60'
               }`
             }
           >
-            <span className="material-icons">business</span>
             <span>DIA Quote</span>
           </NavLink>
           <NavLink
             to="/dashboard/quotes/fttp"
             className={({ isActive }) =>
-              `px-4 py-2 rounded-lg flex items-center space-x-2 ${
+              `px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300 ease-in-out ${
                 isActive ? 'bg-white shadow' : 'hover:bg-white/60'
               }`
             }
           >
-            <span className="material-icons">router</span>
             <span>FTTP Quote</span>
           </NavLink>
           <NavLink
             to="/dashboard/quotes/p2p"
             className={({ isActive }) =>
-              `px-4 py-2 rounded-lg flex items-center space-x-2 ${
+              `px-4 py-2 rounded-lg flex items-center space-x-2 transition-all duration-300 ease-in-out ${
                 isActive ? 'bg-white shadow' : 'hover:bg-white/60'
               }`
             }
           >
-            <span className="material-icons"></span>
             <span>Point to Point Quote</span>
           </NavLink>
         </div>
@@ -67,5 +63,7 @@ const Quotes = () => {
     </div>
   );
 };
+
+
 
 export default Quotes;
