@@ -9,7 +9,8 @@ const BulkuploadData = () => {
   const [fileName, setFileName] = useState("No file chosen");
   const [selectedFile, setSelectedFile] = useState(null);
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event) => 
+  {
     const file = event.target.files[0];
 
     if (file) {

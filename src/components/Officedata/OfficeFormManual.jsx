@@ -5,7 +5,8 @@ import { Link, useNavigate } from 'react-router-dom';
 const OfficeFormManual = () => {
 
   //to submit the data
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = 
+  useState({
     OfficeName: "",
     OfficeAddress: "",
     City: "",
@@ -19,7 +20,8 @@ const OfficeFormManual = () => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => 
+  {
     e.preventDefault();
 
     try {
@@ -29,6 +31,8 @@ const OfficeFormManual = () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify(formData),
+      
+      
       });
 
       const result = await response.json();

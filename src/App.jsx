@@ -10,6 +10,9 @@ import ResetPassword from './components/auth/ResetPassword';
 import Dashboard from './components/Dashboard';
 import OfficeFormManual from './components/Officedata/OfficeFormManual';
 import BulkuploadData from './components/Officedata/BulkuploadData'
+import CreateOrganization from './components/Organization/CreateOrganization';
+import PartnershiprequestOrgId from './components/Admin/PartnershiprequestOrgId';
+import Association_appdis from './components/Admin/Association_appdis';
 import { ToastContainer } from "react-toastify";
 import './App.css';
 
@@ -41,6 +44,9 @@ function App() {
           } />
           <Route path="/office-form" element={<OfficeFormManual/>}/>
           <Route path="/blulk-upload" element={<BulkuploadData/>}/>
+          <Route path="/create-org" element={<CreateOrganization/>}/>
+          <Route path="/partnershipreq" element={<PartnershiprequestOrgId/>}/>
+          <Route path="/Associationdis" element={<Association_appdis/>}/>
         </Routes>
         <Footer />
       </div>
