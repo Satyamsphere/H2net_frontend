@@ -18,7 +18,7 @@ import './App.css';
 
 function App() {
   // For demo purposes, let's assume the user is logged in
-  const isLoggedIn = false;
+  const isLoggedIn = true;
 
   return (
     <Router>

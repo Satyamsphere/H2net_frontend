@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route, NavLink, useLocation, Navigate } from 'react-router-dom';
-import Sites from './dashboard/Sites';
+import SiteDataPage from './dashboard/SiteDataPage';
 import Quotes from './dashboard/Quotes';
 import Orders from './dashboard/Orders';
 
@@ -47,7 +47,7 @@ const Dashboard = () => {
       </div>
       <div className="max-w-full mx-auto">
         <Routes>
-          <Route path="sites" element={<Sites />} />
+          <Route path="sites" element={<SiteDataPage />} />
           <Route path="quotes/*" element={<Quotes />} />
           <Route path="orders/*" element={<Orders />} />
           <Route path="" element={<Navigate to="sites" replace />} />
