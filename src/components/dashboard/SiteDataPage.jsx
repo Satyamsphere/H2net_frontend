@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 
 const SiteDataPage = () => {
+
   const [siteData, setSiteData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -40,7 +41,7 @@ const SiteDataPage = () => {
 
     fetchData();
   }, []);
-
+//to filter the data 
   const applyFilters = () => {
     let filtered = siteData.filter((site) => {
       return (
@@ -61,6 +62,37 @@ const SiteDataPage = () => {
     setFilteredData(filtered);
   };
 
+
+ //to download csv file from download button
+
+const downloadCSV =()=>{
+const csvHeader = "OfficeName,Sitename,SiteID,RoomName,BuildingName,Street,City,Zipcode,Country,Notes\n";
+const csvRows = filteredData.map((quote)=>
+        `${quote.OfficeName},${quote.Sitename},${quote.SiteID},${quote.RoomName},${quote.BuildingName},${quote.City},${quote.Zipcode},${quote.Country}`
+
+).join("\n");
+
+const blob = new Blob([csvHeader + csvRows], { type: "text/csv" });
+const url = URL.createObjectURL(blob);
+const a = document.createElement("a");
+a.href = url;
+a.download = "quotes.csv";
+a.click();
+URL.revokeObjectURL(url);
+
+}
+
+
+
+
+
+
+
+
+
+
+
+
   if (loading) return <p className="text-center text-lg">Loading...</p>;
   if (error) return <p className="text-center text-lg text-red-500">{error}</p>;
 
@@ -73,9 +105,9 @@ const SiteDataPage = () => {
         <button onClick={() => setShowFilters(!showFilters)} className="px-4 py-2 bg-gray-500 text-white rounded shadow flex items-center">
           {showFilters ? "❌ Hide Filters" : "🔍 Show Filters"}
         </button>
-        <button className="px-4 py-2 bg-green-500 text-white rounded shadow flex items-center">
-          ⬇️ Download
-        </button>
+        <button onClick={downloadCSV} className="px-3 py-1 bg-gray-200 text-gray-700 rounded hover:bg-gray-300">
+            Download
+          </button>
         <button onClick={() => window.location.reload()} className="px-4 py-2 bg-yellow-500 text-white rounded shadow flex items-center">
           🔄 Refresh
         </button>
