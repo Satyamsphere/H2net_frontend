@@ -47,7 +47,8 @@ const OfficeFormManual = ({ value, onChange }) => {
 
 
       const result = await response.json();
-      if (response.ok) {
+      if (response.ok) 
+      {
         toast.success("✅ Data submitted successfully!", {
           position: "top-right",
           autoClose: 3000,
@@ -68,7 +69,8 @@ const OfficeFormManual = ({ value, onChange }) => {
           Notes: "",
         });
         console.log(result);
-      } else {
+      } else 
+      {
         toast.error(`❌ Error: ${result.message || "Submission failed!"}`, {
           position: "top-right",
           autoClose: 3000,

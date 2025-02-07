@@ -1,417 +1,140 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 
 const PlaceOrder = () => {
-  const [formData, setFormData] = useState({
-    aEnd: {
-      customerName: '',
-      siteName: '',
-      siteId: '',
-      roomName: '',
-      buildingName: '',
-      buildingStreetNumber: '',
-      streetName: '',
-      townCity: '',
-      postCode: '',
-      country: 'United Kingdom of Great Britain and Northern Ireland',
-      galk: ''
-    },
-    bEnd: {
-      customerName: '',
-      siteName: '',
-      siteId: '',
-      roomName: '',
-      buildingName: '',
-      buildingStreetNumber: '',
-      streetName: '',
-      townCity: '',
-      postCode: '',
-      country: 'United Kingdom of Great Britain and Northern Ireland'
-    },
-    portSpeed: '1 Gbps',
-    contractTerm: '36 Months',
-    bandwidth: '1000 Mbps'
+  const [formDataA, setFormDataA] = useState({
+    customerName: "",
+    siteName: "",
+    siteId: "",
+    roomName: "",
+    buildingName: "",
+    buildingStreetNumber: "",
+    streetName: "",
+    townCity: "",
+    postCode: "",
+    country: "United Kingdom",
+    galk: "",
   });
 
-  const handleReset = () => {
-    setFormData({
-      aEnd: {
-        customerName: '',
-        siteName: '',
-        siteId: '',
-        roomName: '',
-        buildingName: '',
-        buildingStreetNumber: '',
-        streetName: '',
-        townCity: '',
-        postCode: '',
-        country: 'United Kingdom of Great Britain and Northern Ireland',
-        galk: ''
-      },
-      bEnd: {
-        customerName: '',
-        siteName: '',
-        siteId: '',
-        roomName: '',
-        buildingName: '',
-        buildingStreetNumber: '',
-        streetName: '',
-        townCity: '',
-        postCode: '',
-        country: 'United Kingdom of Great Britain and Northern Ireland'
-      },
-      portSpeed: '1 Gbps',
-      contractTerm: '36 Months',
-      bandwidth: '1000 Mbps'
-    });
+  const [formDataB, setFormDataB] = useState({
+    customerName: "",
+    siteName: "",
+    siteId: "",
+    roomName: "",
+    buildingName: "",
+    buildingStreetNumber: "",
+    streetName: "",
+    townCity: "",
+    postCode: "",
+    country: "United Kingdom",
+    // galk: "",
+  });
+
+  const [portSpeed, setPortSpeed] = useState("1 Gbps");
+  const [contractTerm, setContractTerm] = useState("36 Months");
+  const [bandwidth, setBandwidth] = useState("1000 Mbps");
+
+  const handleChangeA = (e) => {
+    const { name, value } = e.target;
+    setFormDataA({ ...formDataA, [name]: value });
   };
 
-  const handleEndPointChange = (end, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [end]: {
-        ...prev[end],
-        [field]: value
-      }
-    }));
+  const handleChangeB = (e) => {
+    const { name, value } = e.target;
+    setFormDataB({ ...formDataB, [name]: value });
   };
 
-  const EndPointForm = ({ end, title }) => (
-    <div className="mb-6">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center space-x-2">
-          <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-            <span className="text-blue-600 text-sm">{end === 'aEnd' ? 'A' : 'B'}</span>
-          </div>
-          <h3 className="text-lg font-semibold">{title}</h3>
-        </div>
-        {end === 'aEnd' && (
-          <button
-            type="button"
-            onClick={handleReset}
-            className="text-blue-600 hover:text-blue-700 flex items-center"
-          >
-            <span className="material-icons text-sm mr-1">refresh</span>
-            Reset
-          </button>
-        )}
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Customer Name {end === 'aEnd' && <span className="text-red-500">*</span>}
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].customerName}
-              onChange={(e) => handleEndPointChange(end, 'customerName', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Site Name
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].siteName}
-              onChange={(e) => handleEndPointChange(end, 'siteName', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Site ID
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].siteId}
-              onChange={(e) => handleEndPointChange(end, 'siteId', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Room Name
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].roomName}
-              onChange={(e) => handleEndPointChange(end, 'roomName', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Building Name
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].buildingName}
-              onChange={(e) => handleEndPointChange(end, 'buildingName', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Building/Street Number
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].buildingStreetNumber}
-              onChange={(e) => handleEndPointChange(end, 'buildingStreetNumber', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Street Name
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].streetName}
-              onChange={(e) => handleEndPointChange(end, 'streetName', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Town/City
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].townCity}
-              onChange={(e) => handleEndPointChange(end, 'townCity', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Post Code <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData[end].postCode}
-              onChange={(e) => handleEndPointChange(end, 'postCode', e.target.value)}
-            />
-            <button
-              type="button"
-              className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            >
-              <span className="material-icons text-lg">edit</span>
-            </button>
-          </div>
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Country
-          </label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            value={formData[end].country}
-            onChange={(e) => handleEndPointChange(end, 'country', e.target.value)}
-          >
-            <option value="United Kingdom of Great Britain and Northern Ireland">
-              United Kingdom of Great Britain and Northern Ireland
-            </option>
-          </select>
-        </div>
-        {end === 'aEnd' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              GALK
-            </label>
-            <div className="relative">
-              <input
-                type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                placeholder="Enter value"
-                value={formData.aEnd.galk}
-                onChange={(e) => handleEndPointChange('aEnd', 'galk', e.target.value)}
-              />
-              <button
-                type="button"
-                className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-              >
-                <span className="material-icons text-lg">edit</span>
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const portSpeedOptions = ['100 Mbps', '1 Gbps', '10 Gbps', '100 Gbps'];
-  const contractTermOptions = ['12 Months', '24 Months', '36 Months', '48 Months', '60 Months'];
-  const bandwidthOptions = ['100 Mbps', '200 Mbps', '300 Mbps', '400 Mbps', '500 Mbps', 
-                           '600 Mbps', '700 Mbps', '800 Mbps', '900 Mbps', '1000 Mbps'];
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    console.log("A-End Data:", formDataA);
+    console.log("B-End Data:", formDataB);
+    console.log("Port Speed:", portSpeed);
+    console.log("Contract Term:", contractTerm);
+    console.log("Bandwidth:", bandwidth);
+  };
 
   return (
-    <div className="bg-white p-6 rounded-lg">
-      <form>
-        <EndPointForm end="aEnd" title="A-End" />
-        <EndPointForm end="bEnd" title="B-End" />
-
-        <div className="space-y-6">
-          {/* Port Speed and Contract Term Section */}
-          <div className="flex space-x-6">
-            {/* Port Speed Section */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Port or Access Speed
-              </label>
-              <div className="flex space-x-1">
-                {portSpeedOptions.map((speed) => (
-                  <button
-                    key={speed}
-                    type="button"
-                    className={`px-4 py-2 text-sm rounded-md border ${
-                      formData.portSpeed === speed
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setFormData({...formData, portSpeed: speed})}
-                  >
-                    {speed}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Contract Term Section */}
-            <div className="flex-1">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contract Term
-              </label>
-              <div className="flex space-x-1">
-                {contractTermOptions.map((term) => (
-                  <button
-                    key={term}
-                    type="button"
-                    className={`px-4 py-2 text-sm rounded-md border ${
-                      formData.contractTerm === term
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setFormData({...formData, contractTerm: term})}
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bandwidth Section */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Bandwidth
+    <div className="max-w-full mx-auto p-6 bg-white shadow-md rounded-lg">
+      <h2 className="text-lg font-semibold mb-4 text-blue-600">A-End</h2>
+      <form className="grid grid-cols-4 gap-4 border-b pb-4 mb-4">
+        {Object.keys(formDataA).map((key) => (
+          <div key={key} className="col-span-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
             </label>
-            <div className="grid grid-cols-10 gap-1">
-              {bandwidthOptions.map((bandwidth) => (
-                <button
-                  key={bandwidth}
-                  type="button"
-                  className={`px-4 py-2 text-sm rounded-md border ${
-                    formData.bandwidth === bandwidth
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setFormData({...formData, bandwidth: bandwidth})}
-                >
-                  {bandwidth}
-                </button>
-              ))}
-            </div>
+            <input
+              type="text"
+              name={key}
+              value={formDataA[key]}
+              onChange={handleChangeA}
+              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
           </div>
-        </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-end mt-6">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Next
-          </button>
-        </div>
+        ))}
       </form>
+      <h2 className="text-lg font-semibold mb-4 text-blue-600">B-End</h2>
+      <form className="grid grid-cols-4 gap-4 border-b pb-4 mb-4">
+        {Object.keys(formDataB).map((key) => (
+          <div key={key} className="col-span-1">
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
+            </label>
+            <input
+              type="text"
+              name={key}
+              value={formDataB[key]}
+              onChange={handleChangeB}
+              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
+            />
+          </div>
+        ))}
+      </form>
+      
+      <h2 className="text-lg font-semibold mb-4 text-blue-600">Port or Access Speed</h2>
+      <div className="flex gap-4 mb-4">
+        {["100 Mbps", "1 Gbps", "10 Gbps", "100 Gbps"].map((speed) => (
+          <button
+            key={speed}
+            type="button"
+            className={`px-4 py-2 rounded-md ${portSpeed === speed ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            onClick={() => setPortSpeed(speed)}
+          >
+            {speed}
+          </button>
+        ))}
+      </div>
+      
+      <h2 className="text-lg font-semibold mb-4 text-blue-600">Bandwidth</h2>
+      <div className="flex gap-2 mb-4 overflow-x-auto">
+        {["100 Mbps", "200 Mbps", "300 Mbps", "400 Mbps", "500 Mbps", "600 Mbps", "700 Mbps", "800 Mbps", "900 Mbps", "1000 Mbps"].map((bw) => (
+          <button
+            key={bw}
+            type="button"
+            className={`px-4 py-2 rounded-md ${bandwidth === bw ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            onClick={() => setBandwidth(bw)}
+          >
+            {bw}
+          </button>
+        ))}
+      </div>
+      
+      <h2 className="text-lg font-semibold mb-4 text-blue-600">Contract Term</h2>
+      <div className="flex gap-4 mb-4">
+        {["12 Months", "24 Months", "36 Months", "48 Months", "60 Months"].map((term) => (
+          <button
+            key={term}
+            type="button"
+            className={`px-4 py-2 rounded-md ${contractTerm === term ? "bg-blue-500 text-white" : "bg-gray-200"}`}
+            onClick={() => setContractTerm(term)}
+          >
+            {term}
+          </button>
+        ))}
+      </div>
+      
+      <div className="flex justify-between items-center mt-4">
+        <button type="button" className="text-blue-600">Reset</button>
+        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Next</button>
+      </div>
     </div>
   );
 };
