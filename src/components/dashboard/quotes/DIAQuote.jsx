@@ -196,7 +196,7 @@ const DIAQuote = () => {
             <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
               <span className="text-blue-600 text-sm">A</span>
             </div>
-            <h3 className="text-lg font-semibold">A-End DIAQuote.s</h3>
+            <h3 className="text-lg font-semibold">A-End DIAQuote</h3>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">

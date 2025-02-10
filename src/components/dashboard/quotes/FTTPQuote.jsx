@@ -1,221 +1,342 @@
-import React, { useState } from 'react';
+import { useState } from "react";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
-const FTTPQuote = () => {
+export default function CustomerForm() {
   const [formData, setFormData] = useState({
-    customerName: '',
-    siteName: '',
-    siteId: '',
-    roomName: '',
-    postCode: '',
-    country: 'United Kingdom of Great Britain and Northern Ireland'
+    CustomerName: "",
+    Sitename: "",
+    SiteID: "",
+    RoomName: "",
+    Zipcode: "",
+    Country: "",
   });
 
-  const [addressResults, setAddressResults] = useState([]);
-
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Handle address lookup here
-    console.log('Looking up address:', formData);
-  };
+    console.log("Submitted Data:", formData);
 
-  const handleReset = () => {
-    setFormData({
-      customerName: '',
-      siteName: '',
-      siteId: '',
-      roomName: '',
-      postCode: '',
-      country: 'United Kingdom of Great Britain and Northern Ireland'
-    });
-    setAddressResults([]);
+    try {
+      const response = await fetch("http://localhost:5000/api/quotes/fttpquotes", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        toast.success("✅ Data submitted successfully!", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+        setFormData({
+          CustomerName: "",
+          Sitename: "",
+          SiteID: "",
+          RoomName: "",
+          Zipcode: "",
+          Country: "",
+        });
+        console.log("Form submitted:", result);
+      } else {
+        toast.error("⚠️ Submission failed. Please check your input.", {
+          position: "top-right",
+          autoClose: 3000,
+        });
+      }
+    } catch (error) {
+      console.error("Error:", error);
+      toast.error("⚠️ Something went wrong. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    }
   };
 
   return (
     <div className="bg-white p-6 rounded-lg">
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-lg font-medium">CHOOSE THE ADDRESS</h2>
-        <button
-          onClick={handleReset}
-          className="text-blue-600 hover:text-blue-700 flex items-center"
-        >
-          <span className="material-icons text-sm mr-1">refresh</span>
-          Reset
-        </button>
-      </div>
-
+      <ToastContainer />
       <form onSubmit={handleSubmit}>
-        {/* A-End Section */}
-        <div className="mb-6">
-          <div className="flex items-center space-x-2 mb-4">
-            <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-              <span className="text-blue-600 text-sm">A</span>
-            </div>
-            <h3 className="text-lg font-semibold">A-End</h3>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="mb-6 border rounded-lg p-4">
+          <h3 className="text-lg font-semibold mb-4">Customer Information</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 Customer Name <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter value"
-                  value={formData.customerName}
-                  onChange={(e) => setFormData({...formData, customerName: e.target.value})}
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-icons text-lg">edit</span>
-                </button>
-              </div>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter Customer Name"
+                value={formData.CustomerName}
+                onChange={(e) => setFormData({ ...formData, CustomerName: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter Site Name"
+                value={formData.Sitename}
+                onChange={(e) => setFormData({ ...formData, Sitename: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site ID</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter Site ID"
+                value={formData.SiteID}
+                onChange={(e) => setFormData({ ...formData, SiteID: e.target.value })}
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Room Name</label>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter Room Name"
+                value={formData.RoomName}
+                onChange={(e) => setFormData({ ...formData, RoomName: e.target.value })}
+              />
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Site Name
+                Zip Code <span className="text-red-500">*</span>
               </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter value"
-                  value={formData.siteName}
-                  onChange={(e) => setFormData({...formData, siteName: e.target.value})}
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-icons text-lg">edit</span>
-                </button>
-              </div>
+              <input
+                type="text"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
+                placeholder="Enter Zip Code"
+                value={formData.Zipcode}
+                onChange={(e) => setFormData({ ...formData, Zipcode: e.target.value })}
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Site ID
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter value"
-                  value={formData.siteId}
-                  onChange={(e) => setFormData({...formData, siteId: e.target.value})}
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-icons text-lg">edit</span>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Room Name
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter value"
-                  value={formData.roomName}
-                  onChange={(e) => setFormData({...formData, roomName: e.target.value})}
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-icons text-lg">edit</span>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Post Code <span className="text-red-500">*</span>
-              </label>
-              <div className="relative">
-                <input
-                  type="text"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                  placeholder="Enter value"
-                  value={formData.postCode}
-                  onChange={(e) => setFormData({...formData, postCode: e.target.value})}
-                />
-                <button
-                  type="button"
-                  className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                >
-                  <span className="material-icons text-lg">edit</span>
-                </button>
-              </div>
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                Country
-              </label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-                value={formData.country}
-                onChange={(e) => setFormData({...formData, country: e.target.value})}
+                value={formData.Country}
+                onChange={(e) => setFormData({ ...formData, Country: e.target.value })}
               >
-                <option value="United Kingdom of Great Britain and Northern Ireland">
-                  United Kingdom of Great Britain and Northern Ireland
-                </option>
+                <option value="">Select a country</option>
+                {[
+              "Afghanistan",
+              "Albania",
+              "Algeria",
+              "Andorra",
+              "Angola",
+              "Antigua and Barbuda",
+              "Argentina",
+              "Armenia",
+              "Australia",
+              "Austria",
+              "Azerbaijan",
+              "Bahamas",
+              "Bahrain",
+              "Bangladesh",
+              "Barbados",
+              "Belarus",
+              "Belgium",
+              "Belize",
+              "Benin",
+              "Bhutan",
+              "Bolivia",
+              "Bosnia and Herzegovina",
+              "Botswana",
+              "Brazil",
+              "Brunei",
+              "Bulgaria",
+              "Burkina Faso",
+              "Burundi",
+              "Cabo Verde",
+              "Cambodia",
+              "Cameroon",
+              "Canada",
+              "Central African Republic",
+              "Chad",
+              "Chile",
+              "China",
+              "Colombia",
+              "Comoros",
+              "Congo (Congo-Brazzaville)",
+              "Costa Rica",
+              "Croatia",
+              "Cuba",
+              "Cyprus",
+              "Czechia",
+              "Democratic Republic of the Congo",
+              "Denmark",
+              "Djibouti",
+              "Dominica",
+              "Dominican Republic",
+              "Ecuador",
+              "Egypt",
+              "El Salvador",
+              "Equatorial Guinea",
+              "Eritrea",
+              "Estonia",
+              "Eswatini (Swaziland)",
+              "Ethiopia",
+              "Fiji",
+              "Finland",
+              "France",
+              "Gabon",
+              "Gambia",
+              "Georgia",
+              "Germany",
+              "Ghana",
+              "Greece",
+              "Grenada",
+              "Guatemala",
+              "Guinea",
+              "Guinea-Bissau",
+              "Guyana",
+              "Haiti",
+              "Honduras",
+              "Hungary",
+              "Iceland",
+              "India",
+              "Indonesia",
+              "Iran",
+              "Iraq",
+              "Ireland",
+              "Israel",
+              "Italy",
+              "Jamaica",
+              "Japan",
+              "Jordan",
+              "Kazakhstan",
+              "Kenya",
+              "Kiribati",
+              "Kuwait",
+              "Kyrgyzstan",
+              "Laos",
+              "Latvia",
+              "Lebanon",
+              "Lesotho",
+              "Liberia",
+              "Libya",
+              "Liechtenstein",
+              "Lithuania",
+              "Luxembourg",
+              "Madagascar",
+              "Malawi",
+              "Malaysia",
+              "Maldives",
+              "Mali",
+              "Malta",
+              "Marshall Islands",
+              "Mauritania",
+              "Mauritius",
+              "Mexico",
+              "Micronesia",
+              "Moldova",
+              "Monaco",
+              "Mongolia",
+              "Montenegro",
+              "Morocco",
+              "Mozambique",
+              "Myanmar (Burma)",
+              "Namibia",
+              "Nauru",
+              "Nepal",
+              "Netherlands",
+              "New Zealand",
+              "Nicaragua",
+              "Niger",
+              "Nigeria",
+              "North Korea",
+              "North Macedonia",
+              "Norway",
+              "Oman",
+              "Pakistan",
+              "Palau",
+              "Panama",
+              "Papua New Guinea",
+              "Paraguay",
+              "Peru",
+              "Philippines",
+              "Poland",
+              "Portugal",
+              "Qatar",
+              "Romania",
+              "Russia",
+              "Rwanda",
+              "Saint Kitts and Nevis",
+              "Saint Lucia",
+              "Saint Vincent and the Grenadines",
+              "Samoa",
+              "San Marino",
+              "Sao Tome and Principe",
+              "Saudi Arabia",
+              "Senegal",
+              "Serbia",
+              "Seychelles",
+              "Sierra Leone",
+              "Singapore",
+              "Slovakia",
+              "Slovenia",
+              "Solomon Islands",
+              "Somalia",
+              "South Africa",
+              "South Korea",
+              "South Sudan",
+              "Spain",
+              "Sri Lanka",
+              "Sudan",
+              "Suriname",
+              "Sweden",
+              "Switzerland",
+              "Syria",
+              "Tajikistan",
+              "Tanzania",
+              "Thailand",
+              "Timor-Leste",
+              "Togo",
+              "Tonga",
+              "Trinidad and Tobago",
+              "Tunisia",
+              "Turkey",
+              "Turkmenistan",
+              "Tuvalu",
+              "Uganda",
+              "Ukraine",
+              "United Arab Emirates",
+              "United Kingdom",
+              "United States",
+              "Uruguay",
+              "Uzbekistan",
+              "Vanuatu",
+              "Vatican City",
+              "Venezuela",
+              "Vietnam",
+              "Yemen",
+              "Zambia",
+              "Zimbabwe",
+            ].map(
+                  (country, index) => (
+                    <option key={index} value={country}>
+                      {country}
+                    </option>
+                  )
+                )}
               </select>
             </div>
           </div>
-
-          <div className="mt-6">
-            <button
-              type="submit"
-              className="w-full px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              Find Address
-            </button>
-          </div>
         </div>
-
-        {/* Address Results Table */}
-        <div className="overflow-x-auto">
-          <table className="min-w-full">
-            <thead>
-              <tr className="bg-gray-50">
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">GALK</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Street Number</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Street/Road Name</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Sub-Premises</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Premises Name</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Locality</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Post Town</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Country</th>
-                <th className="px-4 py-2 text-left text-sm font-medium text-gray-700">Postcode</th>
-              </tr>
-            </thead>
-            <tbody>
-              {addressResults.map((address, index) => (
-                <tr key={index} className="border-t hover:bg-gray-50">
-                  <td className="px-4 py-2">{address?.galk}</td>
-                  <td className="px-4 py-2">{address?.streetNumber}</td>
-                  <td className="px-4 py-2">{address?.streetName}</td>
-                  <td className="px-4 py-2">{address?.subPremises}</td>
-                  <td className="px-4 py-2">{address?.premisesName}</td>
-                  <td className="px-4 py-2">{address?.locality}</td>
-                  <td className="px-4 py-2">{address?.postTown}</td>
-                  <td className="px-4 py-2">{address?.country}</td>
-                  <td className="px-4 py-2">{address?.postcode}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+        <div className="text-right">
+          <button
+            type="submit"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Submit
+          </button>
         </div>
       </form>
     </div>
   );
-};
-
-export default FTTPQuote;
+}
