@@ -31,46 +31,76 @@ const OfficeFormManual = ({ value, onChange }) => {
   // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Ensure required fields are not empty
-    if (!formData.SiteStatus && formData.SiteStatus !== false) {
-      toast.error("⚠️ SiteStatus is required.", { position: "top-right", autoClose: 3000 });
+    const newErrors = {};
+  
+    // Ensure formData is defined
+    if (!formData || typeof formData !== "object") {
+      console.error("Error: formData is undefined or not an object");
       return;
     }
-
+  
+    // Validate required fields with optional chaining
+    if (!formData.customerName?.trim()) {
+      newErrors.customerName = "Customer Name is required";
+    }
+    if (!formData.postCode?.trim()) {
+      newErrors.postCode = "Post Code is required";
+    }
+  
+    // Validate at least one access provider is selected
+    const hasSelectedProvider = Object.values(formData.accessProviders || {}).some(
+      (value) => value
+    );
+    if (!hasSelectedProvider) {
+      newErrors.accessProviders = "Please select at least 1 item.";
+    }
+  
+    setErrors(newErrors);
+  
+    // If validation fails, stop form submission
+    if (Object.keys(newErrors).length > 0) {
+      return;
+    }
+  
     try {
-      const response = await fetch("http://localhost:5000/api/officedata/create", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
-
-
-
+      const response = await fetch(
+        "http://localhost:5000/api/quotes/diaquotes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
+  
       const result = await response.json();
-      if (response.ok) 
-      {
+      if (response.ok) {
         toast.success("✅ Data submitted successfully!", {
           position: "top-right",
           autoClose: 3000,
         });
+  
+        // Reset form data
         setFormData({
-          SiteStatus: false,
-          OfficeName: "",
-          // OfficeAddress: "",
-          Sitename: "",
-          SiteID: "",
-          RoomName: "",
-          BuildingName: "",
-          Street: "",
-          City: "",
-          Zipcode: "",
-          Country: "",
-          // Contact: "",
-          Notes: "",
+          customerName: "",  // Fix key casing
+          sitename: "",
+          siteID: "",
+          roomName: "",
+          buildingName: "",
+          streetNumber: "",
+          streetName: "",
+          city: "",
+          zipcode: "",
+          country: "",
+          galk: "",
+          portAccessSpeed: "",
+          contractTerm: "",
+          bandwidth: "",
+          accessProviders: {}, // Reset properly
+          ipv4Subnet: "",
         });
-        console.log(result);
-      } else 
-      {
+  
+        console.log("Form submitted:", result);
+      } else {
         toast.error(`❌ Error: ${result.message || "Submission failed!"}`, {
           position: "top-right",
           autoClose: 3000,
@@ -84,6 +114,7 @@ const OfficeFormManual = ({ value, onChange }) => {
       });
     }
   };
+  
 
   return (
     <div className="max-w-2xl mx-auto p-6 bg-white shadow-md rounded-lg">
