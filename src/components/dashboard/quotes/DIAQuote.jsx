@@ -20,14 +20,13 @@ const DIAQuote = () => {
     Bandwidth: "",
     AccessProviders: [],
     Ipv4Subnet: "",
-   
   });
 
   const [errors, setErrors] = useState({});
 
   const getBandwidthOptions = (portSpeed) => {
     let min, max, unit;
-  
+
     switch (portSpeed) {
       case "100 Mbps":
         min = 10;
@@ -52,20 +51,19 @@ const DIAQuote = () => {
       default:
         return [];
     }
-  
+
     return Array.from({ length: 10 }, (_, i) => {
       const value = min + (i * (max - min)) / 9; // Distribute values evenly
       return `${value} ${unit}`;
     });
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     const newErrors = {};
-  
+
     console.log("Form Data Before Validation:", formData);
-  
+
     // Ensure required fields exist before calling .trim()
     if (!formData.CustomerName || formData.CustomerName.trim() === "") {
       newErrors.CustomerName = "Customer Name is required";
@@ -73,39 +71,47 @@ const DIAQuote = () => {
     if (!formData.Zipcode || formData.Zipcode.toString().trim() === "") {
       newErrors.Zipcode = "Post Code is required";
     }
-  
+
     // Validate Access Providers (Ensure at least one is selected)
-    if (!Array.isArray(formData.AccessProviders) || formData.AccessProviders.length === 0) {
+    if (
+      !Array.isArray(formData.AccessProviders) ||
+      formData.AccessProviders.length === 0
+    ) {
       newErrors.AccessProviders = "Please select at least one access provider.";
     }
-  
+
     setErrors(newErrors);
-  
+
     // If validation fails, stop form submission
     if (Object.keys(newErrors).length > 0) {
       console.error("Validation Errors:", newErrors);
       return;
     }
-  
+
     try {
-      const response = await fetch("http://localhost:5000/api/quotes/diaquotes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...formData,
-          Zipcode: parseInt(formData.Zipcode, 10), // Ensure Zipcode is a number
-          AccessProviders: formData.AccessProviders.filter((provider) => provider), // Remove falsy values
-        }),
-      });
-  
+      const response = await fetch(
+        "http://localhost:5000/api/quotes/diaquotes",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            ...formData,
+            Zipcode: parseInt(formData.Zipcode, 10), // Ensure Zipcode is a number
+            AccessProviders: formData.AccessProviders.filter(
+              (provider) => provider
+            ), // Remove falsy values
+          }),
+        }
+      );
+
       const result = await response.json();
-  
+
       if (response.ok) {
         toast.success("✅ Data submitted successfully!", {
           position: "top-right",
           autoClose: 3000,
         });
-  
+
         // Delay form reset to allow toast to be visible
         setTimeout(() => {
           setFormData({
@@ -127,7 +133,7 @@ const DIAQuote = () => {
             Ipv4Subnet: "",
           });
         }, 1000); // ⏳ Delay reset by 1 second to allow toast visibility
-  
+
         console.log("Form submitted successfully:", result);
       } else {
         console.error("Server Error Response:", result);
@@ -144,15 +150,6 @@ const DIAQuote = () => {
       });
     }
   };
-  
-  
-  
-
-
-
-
-  
-
 
   const portSpeedOptions = ["100 Mbps", "1 Gbps", "10 Gbps", "100 Gbps"];
   const contractTermOptions = [
@@ -163,13 +160,13 @@ const DIAQuote = () => {
     "60 Months",
   ];
   const bandwidthOptions = getBandwidthOptions(formData.portSpeed);
-  const ipv4SubnetSizes = ["WAN IP Only","/30", "/29", "/28", "/27", "/26"];
+  const ipv4SubnetSizes = ["WAN IP Only", "/30", "/29", "/28", "/27", "/26"];
 
   const handlePortSpeedChange = (speed) => {
     setFormData((prevData) => {
       const newBandwidthOptions = getBandwidthOptions(speed);
       const newBandwidth = newBandwidthOptions[0] || ""; // Select first available bandwidth
-  
+
       return {
         ...prevData,
         PortAccessSpeed: speed,
@@ -184,8 +181,6 @@ const DIAQuote = () => {
   );
 
   // Handle form submission
-
-
 
   return (
     <div className="bg-white p-6 rounded-lg">
@@ -358,208 +353,206 @@ const DIAQuote = () => {
                   setFormData({ ...formData, Country: e.target.value })
                 }
               >
-               <option value="">Select a country</option>
-            {[
-              "Afghanistan",
-              "Albania",
-              "Algeria",
-              "Andorra",
-              "Angola",
-              "Antigua and Barbuda",
-              "Argentina",
-              "Armenia",
-              "Australia",
-              "Austria",
-              "Azerbaijan",
-              "Bahamas",
-              "Bahrain",
-              "Bangladesh",
-              "Barbados",
-              "Belarus",
-              "Belgium",
-              "Belize",
-              "Benin",
-              "Bhutan",
-              "Bolivia",
-              "Bosnia and Herzegovina",
-              "Botswana",
-              "Brazil",
-              "Brunei",
-              "Bulgaria",
-              "Burkina Faso",
-              "Burundi",
-              "Cabo Verde",
-              "Cambodia",
-              "Cameroon",
-              "Canada",
-              "Central African Republic",
-              "Chad",
-              "Chile",
-              "China",
-              "Colombia",
-              "Comoros",
-              "Congo (Congo-Brazzaville)",
-              "Costa Rica",
-              "Croatia",
-              "Cuba",
-              "Cyprus",
-              "Czechia",
-              "Democratic Republic of the Congo",
-              "Denmark",
-              "Djibouti",
-              "Dominica",
-              "Dominican Republic",
-              "Ecuador",
-              "Egypt",
-              "El Salvador",
-              "Equatorial Guinea",
-              "Eritrea",
-              "Estonia",
-              "Eswatini (Swaziland)",
-              "Ethiopia",
-              "Fiji",
-              "Finland",
-              "France",
-              "Gabon",
-              "Gambia",
-              "Georgia",
-              "Germany",
-              "Ghana",
-              "Greece",
-              "Grenada",
-              "Guatemala",
-              "Guinea",
-              "Guinea-Bissau",
-              "Guyana",
-              "Haiti",
-              "Honduras",
-              "Hungary",
-              "Iceland",
-              "India",
-              "Indonesia",
-              "Iran",
-              "Iraq",
-              "Ireland",
-              "Israel",
-              "Italy",
-              "Jamaica",
-              "Japan",
-              "Jordan",
-              "Kazakhstan",
-              "Kenya",
-              "Kiribati",
-              "Kuwait",
-              "Kyrgyzstan",
-              "Laos",
-              "Latvia",
-              "Lebanon",
-              "Lesotho",
-              "Liberia",
-              "Libya",
-              "Liechtenstein",
-              "Lithuania",
-              "Luxembourg",
-              "Madagascar",
-              "Malawi",
-              "Malaysia",
-              "Maldives",
-              "Mali",
-              "Malta",
-              "Marshall Islands",
-              "Mauritania",
-              "Mauritius",
-              "Mexico",
-              "Micronesia",
-              "Moldova",
-              "Monaco",
-              "Mongolia",
-              "Montenegro",
-              "Morocco",
-              "Mozambique",
-              "Myanmar (Burma)",
-              "Namibia",
-              "Nauru",
-              "Nepal",
-              "Netherlands",
-              "New Zealand",
-              "Nicaragua",
-              "Niger",
-              "Nigeria",
-              "North Korea",
-              "North Macedonia",
-              "Norway",
-              "Oman",
-              "Pakistan",
-              "Palau",
-              "Panama",
-              "Papua New Guinea",
-              "Paraguay",
-              "Peru",
-              "Philippines",
-              "Poland",
-              "Portugal",
-              "Qatar",
-              "Romania",
-              "Russia",
-              "Rwanda",
-              "Saint Kitts and Nevis",
-              "Saint Lucia",
-              "Saint Vincent and the Grenadines",
-              "Samoa",
-              "San Marino",
-              "Sao Tome and Principe",
-              "Saudi Arabia",
-              "Senegal",
-              "Serbia",
-              "Seychelles",
-              "Sierra Leone",
-              "Singapore",
-              "Slovakia",
-              "Slovenia",
-              "Solomon Islands",
-              "Somalia",
-              "South Africa",
-              "South Korea",
-              "South Sudan",
-              "Spain",
-              "Sri Lanka",
-              "Sudan",
-              "Suriname",
-              "Sweden",
-              "Switzerland",
-              "Syria",
-              "Tajikistan",
-              "Tanzania",
-              "Thailand",
-              "Timor-Leste",
-              "Togo",
-              "Tonga",
-              "Trinidad and Tobago",
-              "Tunisia",
-              "Turkey",
-              "Turkmenistan",
-              "Tuvalu",
-              "Uganda",
-              "Ukraine",
-              "United Arab Emirates",
-              "United Kingdom",
-              "United States",
-              "Uruguay",
-              "Uzbekistan",
-              "Vanuatu",
-              "Vatican City",
-              "Venezuela",
-              "Vietnam",
-              "Yemen",
-              "Zambia",
-              "Zimbabwe",
-            ].map((country, index) => (
-              <option key={index} value={country}>
-                {country}
-              </option>
-            ))}
-
-
+                <option value="">Select a country</option>
+                {[
+                  "Afghanistan",
+                  "Albania",
+                  "Algeria",
+                  "Andorra",
+                  "Angola",
+                  "Antigua and Barbuda",
+                  "Argentina",
+                  "Armenia",
+                  "Australia",
+                  "Austria",
+                  "Azerbaijan",
+                  "Bahamas",
+                  "Bahrain",
+                  "Bangladesh",
+                  "Barbados",
+                  "Belarus",
+                  "Belgium",
+                  "Belize",
+                  "Benin",
+                  "Bhutan",
+                  "Bolivia",
+                  "Bosnia and Herzegovina",
+                  "Botswana",
+                  "Brazil",
+                  "Brunei",
+                  "Bulgaria",
+                  "Burkina Faso",
+                  "Burundi",
+                  "Cabo Verde",
+                  "Cambodia",
+                  "Cameroon",
+                  "Canada",
+                  "Central African Republic",
+                  "Chad",
+                  "Chile",
+                  "China",
+                  "Colombia",
+                  "Comoros",
+                  "Congo (Congo-Brazzaville)",
+                  "Costa Rica",
+                  "Croatia",
+                  "Cuba",
+                  "Cyprus",
+                  "Czechia",
+                  "Democratic Republic of the Congo",
+                  "Denmark",
+                  "Djibouti",
+                  "Dominica",
+                  "Dominican Republic",
+                  "Ecuador",
+                  "Egypt",
+                  "El Salvador",
+                  "Equatorial Guinea",
+                  "Eritrea",
+                  "Estonia",
+                  "Eswatini (Swaziland)",
+                  "Ethiopia",
+                  "Fiji",
+                  "Finland",
+                  "France",
+                  "Gabon",
+                  "Gambia",
+                  "Georgia",
+                  "Germany",
+                  "Ghana",
+                  "Greece",
+                  "Grenada",
+                  "Guatemala",
+                  "Guinea",
+                  "Guinea-Bissau",
+                  "Guyana",
+                  "Haiti",
+                  "Honduras",
+                  "Hungary",
+                  "Iceland",
+                  "India",
+                  "Indonesia",
+                  "Iran",
+                  "Iraq",
+                  "Ireland",
+                  "Israel",
+                  "Italy",
+                  "Jamaica",
+                  "Japan",
+                  "Jordan",
+                  "Kazakhstan",
+                  "Kenya",
+                  "Kiribati",
+                  "Kuwait",
+                  "Kyrgyzstan",
+                  "Laos",
+                  "Latvia",
+                  "Lebanon",
+                  "Lesotho",
+                  "Liberia",
+                  "Libya",
+                  "Liechtenstein",
+                  "Lithuania",
+                  "Luxembourg",
+                  "Madagascar",
+                  "Malawi",
+                  "Malaysia",
+                  "Maldives",
+                  "Mali",
+                  "Malta",
+                  "Marshall Islands",
+                  "Mauritania",
+                  "Mauritius",
+                  "Mexico",
+                  "Micronesia",
+                  "Moldova",
+                  "Monaco",
+                  "Mongolia",
+                  "Montenegro",
+                  "Morocco",
+                  "Mozambique",
+                  "Myanmar (Burma)",
+                  "Namibia",
+                  "Nauru",
+                  "Nepal",
+                  "Netherlands",
+                  "New Zealand",
+                  "Nicaragua",
+                  "Niger",
+                  "Nigeria",
+                  "North Korea",
+                  "North Macedonia",
+                  "Norway",
+                  "Oman",
+                  "Pakistan",
+                  "Palau",
+                  "Panama",
+                  "Papua New Guinea",
+                  "Paraguay",
+                  "Peru",
+                  "Philippines",
+                  "Poland",
+                  "Portugal",
+                  "Qatar",
+                  "Romania",
+                  "Russia",
+                  "Rwanda",
+                  "Saint Kitts and Nevis",
+                  "Saint Lucia",
+                  "Saint Vincent and the Grenadines",
+                  "Samoa",
+                  "San Marino",
+                  "Sao Tome and Principe",
+                  "Saudi Arabia",
+                  "Senegal",
+                  "Serbia",
+                  "Seychelles",
+                  "Sierra Leone",
+                  "Singapore",
+                  "Slovakia",
+                  "Slovenia",
+                  "Solomon Islands",
+                  "Somalia",
+                  "South Africa",
+                  "South Korea",
+                  "South Sudan",
+                  "Spain",
+                  "Sri Lanka",
+                  "Sudan",
+                  "Suriname",
+                  "Sweden",
+                  "Switzerland",
+                  "Syria",
+                  "Tajikistan",
+                  "Tanzania",
+                  "Thailand",
+                  "Timor-Leste",
+                  "Togo",
+                  "Tonga",
+                  "Trinidad and Tobago",
+                  "Tunisia",
+                  "Turkey",
+                  "Turkmenistan",
+                  "Tuvalu",
+                  "Uganda",
+                  "Ukraine",
+                  "United Arab Emirates",
+                  "United Kingdom",
+                  "United States",
+                  "Uruguay",
+                  "Uzbekistan",
+                  "Vanuatu",
+                  "Vatican City",
+                  "Venezuela",
+                  "Vietnam",
+                  "Yemen",
+                  "Zambia",
+                  "Zimbabwe",
+                ].map((country, index) => (
+                  <option key={index} value={country}>
+                    {country}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -589,20 +582,20 @@ const DIAQuote = () => {
                   Port or Access Speed
                 </label>
                 <div className="flex space-x-1">
-                {portSpeedOptions.map((speed) => (
-          <button
-            key={speed}
-            type="button"
-            className={`px-4 py-2 text-sm rounded-md border ${
-              formData.PortAccessSpeed === speed
-                ? "bg-blue-600 text-white border-blue-600"
-                : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-            }`}
-            onClick={() => handlePortSpeedChange(speed)}
-          >
-            {speed}
-          </button>
-        ))}
+                  {portSpeedOptions.map((speed) => (
+                    <button
+                      key={speed}
+                      type="button"
+                      className={`px-4 py-2 text-sm rounded-md border ${
+                        formData.PortAccessSpeed === speed
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                      }`}
+                      onClick={() => handlePortSpeedChange(speed)}
+                    >
+                      {speed}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -638,22 +631,27 @@ const DIAQuote = () => {
                 Bandwidth
               </label>
               <div className="grid grid-cols-5 gap-1">
-              {getBandwidthOptions(formData.PortAccessSpeed).map((bandwidth) => (
-            <button
-              key={bandwidth}
-              type="button"
-              className={`px-4 py-2 text-sm rounded-md border ${
-                formData.Bandwidth === bandwidth
-                  ? "bg-blue-600 text-white border-blue-600"
-                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
-              }`}
-              onClick={() =>
-                setFormData((prevData) => ({ ...prevData, Bandwidth: bandwidth }))
-              }
-            >
-              {bandwidth}
-            </button>
-          ))}
+                {getBandwidthOptions(formData.PortAccessSpeed).map(
+                  (bandwidth) => (
+                    <button
+                      key={bandwidth}
+                      type="button"
+                      className={`px-4 py-2 text-sm rounded-md border ${
+                        formData.Bandwidth === bandwidth
+                          ? "bg-blue-600 text-white border-blue-600"
+                          : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                      }`}
+                      onClick={() =>
+                        setFormData((prevData) => ({
+                          ...prevData,
+                          Bandwidth: bandwidth,
+                        }))
+                      }
+                    >
+                      {bandwidth}
+                    </button>
+                  )
+                )}
               </div>
             </div>
 
@@ -691,54 +689,61 @@ const DIAQuote = () => {
           <div className="space-y-6">
             {/* Access Providers Section */}
             <div className="border rounded-lg p-4">
-  <label className="block text-sm font-medium text-gray-700 mb-2">
-    Access Providers
-  </label>
-  <div className="grid grid-cols-2 gap-4">
-    {[
-      "BT Openreach",
-      "BT Wholesale",
-      "CityFibre",
-      "Colt",
-      "Sky",
-      "TalkTalk",
-      "Virgin Media",
-    ].map((provider) => (
-      <label key={provider} className="flex items-center space-x-2">
-        <div className="relative inline-block w-10 mr-2 align-middle select-none">
-          <input
-            type="checkbox"
-            checked={formData.AccessProviders.includes(provider)}
-            onChange={(e) => {
-              const updatedProviders = e.target.checked
-                ? [...formData.AccessProviders, provider]
-                : formData.AccessProviders.filter((p) => p !== provider);
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Access Providers
+              </label>
+              
+              <div className="grid grid-cols-2 gap-4">
+                {[
+                  "BT Openreach",
+                  "BT Wholesale",
+                  "CityFibre",
+                  "Colt",
+                  "Sky",
+                  "TalkTalk",
+                  "Virgin Media",
+                ].map((provider) => (
+                  <label key={provider} className="flex items-center space-x-2">
+                    <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                      <input
+                        type="checkbox"
+                        checked={formData.AccessProviders.includes(provider)}
+                        onChange={(e) => {
+                          const updatedProviders = e.target.checked
+                            ? [...formData.AccessProviders, provider]
+                            : formData.AccessProviders.filter(
+                                (p) => p !== provider
+                              );
 
-              setFormData({ ...formData, AccessProviders: updatedProviders });
+                          setFormData({
+                            ...formData,
+                            AccessProviders: updatedProviders,
+                          });
 
-              if (errors.AccessProviders) {
-                setErrors({ ...errors, AccessProviders: "" });
-              }
-            }}
-            className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-          />
-          <div
-            className={`toggle-label block overflow-hidden h-6 rounded-full ${
-              formData.AccessProviders.includes(provider)
-                ? "bg-blue-600"
-                : "bg-gray-300"
-            }`}
-          ></div>
-        </div>
-        <span className="text-gray-700">{provider}</span>
-      </label>
-    ))}
-  </div>
-  {errors.AccessProviders && (
-    <p className="text-red-500 text-sm mt-2">{errors.AccessProviders}</p>
-  )}
-</div>
-
+                          if (errors.AccessProviders) {
+                            setErrors({ ...errors, AccessProviders: "" });
+                          }
+                        }}
+                        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                      />
+                      <div
+                        className={`toggle-label block overflow-hidden h-6 rounded-full ${
+                          formData.AccessProviders.includes(provider)
+                            ? "bg-blue-600"
+                            : "bg-gray-300"
+                        }`}
+                      ></div>
+                    </div>
+                    <span className="text-gray-700">{provider}</span>
+                  </label>
+                ))}
+              </div>
+              {errors.AccessProviders && (
+                <p className="text-red-500 text-sm mt-2">
+                  {errors.AccessProviders}
+                </p>
+              )}
+            </div>
 
             {/* Circuit Diversity Section */}
             <div className="border rounded-lg p-4">
@@ -775,7 +780,7 @@ const DIAQuote = () => {
             type="submit"
             className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
           >
-           Submit
+            Submit
           </button>
         </div>
       </form>

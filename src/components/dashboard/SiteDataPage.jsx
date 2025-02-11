@@ -11,7 +11,7 @@ const SiteDataPage = () => {
   const [showFilters, setShowFilters] = useState(false); // Hide filters initially
   const [filters, setFilters] = useState({
     SiteStatus: "", // Default value (true/false)
-    OfficeName: "",
+    CustomerName: "",
     Sitename: "",
     SiteID: "",
     RoomName: "",
@@ -111,7 +111,7 @@ const handleDelete = async (id) => {
     let filtered = siteData.filter((site) => {
       return (
         (filters.SiteStatus === "" || site.SiteStatus === (filters.SiteStatus === "true")) &&
-        (filters.OfficeName === "" || site.OfficeName.toLowerCase().includes(filters.OfficeName.toLowerCase())) &&
+        (filters.CustomerName === "" || site.CustomerName.toLowerCase().includes(filters.CustomerName.toLowerCase())) &&
         (filters.Sitename === "" || site.Sitename.toLowerCase().includes(filters.Sitename.toLowerCase())) &&
         (filters.SiteID === "" || site.SiteID.toLowerCase().includes(filters.SiteID.toLowerCase())) &&
         (filters.RoomName === "" || site.RoomName.toLowerCase().includes(filters.RoomName.toLowerCase())) &&
@@ -131,9 +131,9 @@ const handleDelete = async (id) => {
  //to download csv file from download button
 
 const downloadCSV =()=>{
-const csvHeader = "OfficeName,Sitename,SiteID,RoomName,BuildingName,Street,City,Zipcode,Country,Notes\n";
+const csvHeader = "CustomerName,Sitename,SiteID,RoomName,BuildingName,Street,City,Zipcode,Country,Notes\n";
 const csvRows = filteredData.map((quote)=>
-        `${quote.OfficeName},${quote.Sitename},${quote.SiteID},${quote.RoomName},${quote.BuildingName},${quote.City},${quote.Zipcode},${quote.Country}`
+        `${quote.CustomerName},${quote.Sitename},${quote.SiteID},${quote.RoomName},${quote.BuildingName},${quote.City},${quote.Zipcode},${quote.Country}`
 
 ).join("\n");
 
@@ -205,7 +205,7 @@ URL.revokeObjectURL(url);
               <option value="true">Active</option>
               <option value="false">Inactive</option>
             </select>
-            {["OfficeName", "Sitename", "SiteID", "RoomName", "BuildingName", "Street", "City", "Zipcode", "Country", "Notes"].map(
+            {["CustomerName", "Sitename", "SiteID", "RoomName", "BuildingName", "Street", "City", "Zipcode", "Country", "Notes"].map(
               (key) => (
                 <input
                   key={key}
@@ -243,7 +243,7 @@ URL.revokeObjectURL(url);
         <tbody>
           {filteredData.map((site, index) => (
             <tr key={site._id || index} className="text-center border-b">
-              <td className="border p-2">{site.OfficeName}</td>
+              <td className="border p-2">{site.CustomerName}</td>
               <td className="border p-2">{site.Sitename}</td>
               <td className="border p-2">{site.SiteID}</td>
               <td className="border p-2">{site.RoomName}</td>
@@ -290,7 +290,7 @@ URL.revokeObjectURL(url);
         <div className="mt-6 p-4 border rounded bg-gray-100">
           <h3 className="text-lg font-bold mb-2">Edit Office Data</h3>
           <div className="grid grid-cols-2 gap-4">
-            {["OfficeName", "Sitename", "SiteID", "RoomName", "BuildingName", "Street", "City", "Zipcode", "Country", "Notes"].map(
+            {["CustomerName", "Sitename", "SiteID", "RoomName", "BuildingName", "Street", "City", "Zipcode", "Country", "Notes"].map(
               (key) => (
                 <input
                   key={key}

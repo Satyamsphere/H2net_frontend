@@ -1,393 +1,539 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PointToPointQuote = () => {
   const [formData, setFormData] = useState({
-    aEnd: {
-      customerName: '',
-      siteName: '',
-      siteId: '',
-      roomName: '',
-      buildingName: '',
-      buildingStreetNumber: '',
-      streetName: '',
-      townCity: '',
-      postCode: '',
-      country: 'United Kingdom of Great Britain and Northern Ireland',
-      galk: ''
+    AEnd: {
+      CustomerName: "",
+      Sitename: "",
+      SiteID: "",
+      RoomName: "",
+      BuildingName: "",
+      StreetNumber: "",
+      StreetName: "",
+      City: "",
+      Zipcode: "",
+      Country: "",
     },
-    bEnd: {
-      customerName: '',
-      siteName: '',
-      siteId: '',
-      roomName: '',
-      buildingName: '',
-      buildingStreetNumber: '',
-      streetName: '',
-      townCity: '',
-      postCode: '',
-      country: 'United Kingdom of Great Britain and Northern Ireland'
+    BEnd: {
+      CustomerName: "",
+      Sitename: "",
+      SiteID: "",
+      RoomName: "",
+      BuildingName: "",
+      StreetNumber: "",
+      StreetName: "",
+      City: "",
+      Zipcode: "",
+      Country: "",
     },
-    portSpeed: '1 Gbps',
-    contractTerm: '36 Months',
-    bandwidth: '1000 Mbps',
-    accessProviders: {
-      btOpenreach: false,
-      btWholesale: false,
-      cityFibre: false,
-      colt: false,
-      sky: false,
-      talkTalk: false,
-      virginMedia: false
-    }
+    PortAccessSpeed: "",
+    ContractTerm: "",
+    Bandwidth: "",
+    AccessProviders: [],
+    CircuitDiversity: false,
   });
 
   const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState(null);
 
-  const portSpeedOptions = ['100 Mbps', '1 Gbps', '10 Gbps', '100 Gbps'];
-  const contractTermOptions = ['12 Months', '24 Months', '36 Months', '48 Months', '60 Months'];
-  const bandwidthOptions = ['100 Mbps', '200 Mbps', '300 Mbps', '400 Mbps', '500 Mbps', 
-                           '600 Mbps', '700 Mbps', '800 Mbps', '900 Mbps', '1000 Mbps'];
+  const portSpeedOptions = ["100 Mbps", "1 Gbps", "10 Gbps", "100 Gbps"];
+  const contractTermOptions = [
+    "12 Months",
+    "24 Months",
+    "36 Months",
+    "48 Months",
+    "60 Months",
+    "72 Months",
+  ];
+  const accessProvidersList = [
+    "BT Openreach",
+    "BT Wholesale",
+    "CityFibre",
+    "Colt",
+    "Sky",
+    "TalkTalk",
+    "Virgin Media",
+  ];
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const newErrors = {};
+  const getBandwidthOptions = (portSpeed) => {
+    let min, max, unit;
 
-    // Validate required fields
-    if (!formData.aEnd.customerName.trim()) {
-      newErrors.aEndCustomerName = 'Customer Name is required';
+    switch (portSpeed) {
+      case "100 Mbps":
+        min = 10;
+        max = 100;
+        unit = "Mbps";
+        break;
+      case "1 Gbps":
+        min = 100;
+        max = 1000;
+        unit = "Mbps";
+        break;
+      case "10 Gbps":
+        min = 1;
+        max = 10;
+        unit = "Gbps";
+        break;
+      case "100 Gbps":
+        min = 10;
+        max = 100;
+        unit = "Gbps";
+        break;
+      default:
+        return [];
     }
-    if (!formData.aEnd.postCode.trim()) {
-      newErrors.aEndPostCode = 'Post Code is required';
-    }
-    if (!formData.bEnd.postCode.trim()) {
-      newErrors.bEndPostCode = 'Post Code is required';
-    }
 
-    // Validate at least one access provider is selected
-    const hasSelectedProvider = Object.values(formData.accessProviders).some(value => value);
-    if (!hasSelectedProvider) {
-      newErrors.accessProviders = 'Please select at least 1 item.';
-    }
-
-    setErrors(newErrors);
-
-    if (Object.keys(newErrors).length === 0) {
-      console.log('Form submitted:', formData);
-    }
+    return Array.from({ length: 10 }, (_, i) => {
+      const value = min + (i * (max - min)) / 9; // Distribute values evenly
+      return `${value} ${unit}`;
+    });
   };
 
-  const handleEndPointChange = (end, field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [end]: {
-        ...prev[end],
-        [field]: value
-      }
+  const handleChange = (e, section, field) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section],
+        [field]: e.target.value,
+      },
     }));
   };
 
-  const EndPointForm = ({ end, title }) => (
-    <div className="mb-6 border rounded-lg p-4">
-      <div className="flex items-center space-x-2 mb-4">
-        <div className="w-6 h-6 bg-blue-100 rounded flex items-center justify-center">
-          <span className="text-blue-600 text-sm">{end === 'aEnd' ? 'A' : 'B'}</span>
-        </div>
-        <h3 className="text-lg font-semibold">{title}</h3>
-      </div>
+  const handlePortSpeedChange = (speed) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      PortAccessSpeed: speed,
+      Bandwidth: "", // Reset bandwidth on speed change
+    }));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrors({});
+  
+    const requestData = {
+      ...formData,
+      AEnd: { ...formData.AEnd, Zipcode: String(formData.AEnd.Zipcode) },
+      BEnd: { ...formData.BEnd, Zipcode: String(formData.BEnd.Zipcode) },
+    };
+  
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/quotes/ppquotes",
+        requestData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Customer Name {end === 'aEnd' && <span className="text-red-500">*</span>}
-          </label>
-          <input
-            type="text"
-            className={`w-full px-3 py-2 border ${
-              errors[`${end}CustomerName`] ? 'border-red-500' : 'border-gray-300'
-            } rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
-            placeholder="Enter value"
-            value={formData[end].customerName}
-            onChange={(e) => handleEndPointChange(end, 'customerName', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Site Name
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].siteName}
-            onChange={(e) => handleEndPointChange(end, 'siteName', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Site ID
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].siteId}
-            onChange={(e) => handleEndPointChange(end, 'siteId', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Room Name
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].roomName}
-            onChange={(e) => handleEndPointChange(end, 'roomName', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Building Name
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].buildingName}
-            onChange={(e) => handleEndPointChange(end, 'buildingName', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Building/Street Number
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].buildingStreetNumber}
-            onChange={(e) => handleEndPointChange(end, 'buildingStreetNumber', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Street Name
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].streetName}
-            onChange={(e) => handleEndPointChange(end, 'streetName', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Town/City
-          </label>
-          <input
-            type="text"
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            placeholder="Enter value"
-            value={formData[end].townCity}
-            onChange={(e) => handleEndPointChange(end, 'townCity', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Post Code <span className="text-red-500">*</span>
-          </label>
-          <input
-            type="text"
-            className={`w-full px-3 py-2 border ${
-              errors[`${end}PostCode`] ? 'border-red-500' : 'border-gray-300'
-            } rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500`}
-            placeholder="Enter value"
-            value={formData[end].postCode}
-            onChange={(e) => handleEndPointChange(end, 'postCode', e.target.value)}
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Country
-          </label>
-          <select
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-            value={formData[end].country}
-            onChange={(e) => handleEndPointChange(end, 'country', e.target.value)}
-          >
-            <option value="United Kingdom of Great Britain and Northern Ireland">
-              United Kingdom of Great Britain and Northern Ireland
-            </option>
-          </select>
-        </div>
-        {end === 'aEnd' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              GALK
-            </label>
-            <input
-              type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
-              placeholder="Enter value"
-              value={formData.aEnd.galk}
-              onChange={(e) => handleEndPointChange('aEnd', 'galk', e.target.value)}
-            />
-          </div>
-        )}
-      </div>
-    </div>
-  );
+      setResponse(res.data);
+      console.log(res)
+  
+      // Show success toast message
+      toast.success("Data submitted successfully!", {
+        position: "top-center",
+        autoClose: 3000, // 3 seconds
+      });
+  
+    } catch (err) {
+      setErrors({ submit: err.response?.data?.message || "An error occurred" });
+  
+      // Show error toast message
+      toast.error("Submission failed. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+  
+    } finally {
+      setLoading(false);
+    }
+  }
 
   return (
-    <div className="bg-white p-6 rounded-lg">
-      <form onSubmit={handleSubmit}>
-        <EndPointForm end="aEnd" title="A-End" />
-        <EndPointForm end="bEnd" title="B-End" />
-
-        <div className="space-y-6">
-          {/* Port Speed and Contract Term Section */}
-          <div className="flex space-x-6">
-            {/* Port Speed Section */}
-            <div className="flex-1 border rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Port or Access Speed
-              </label>
-              <div className="flex space-x-1">
-                {portSpeedOptions.map((speed) => (
-                  <button
-                    key={speed}
-                    type="button"
-                    className={`px-4 py-2 text-sm rounded-md border ${
-                      formData.portSpeed === speed
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setFormData({...formData, portSpeed: speed})}
-                  >
-                    {speed}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* Contract Term Section */}
-            <div className="flex-1 border rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Contract Term
-              </label>
-              <div className="flex space-x-1">
-                {contractTermOptions.map((term) => (
-                  <button
-                    key={term}
-                    type="button"
-                    className={`px-4 py-2 text-sm rounded-md border ${
-                      formData.contractTerm === term
-                        ? 'bg-blue-600 text-white border-blue-600'
-                        : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                    }`}
-                    onClick={() => setFormData({...formData, contractTerm: term})}
-                  >
-                    {term}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Bandwidth Section */}
-          <div className="border rounded-lg p-4">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Bandwidth
-            </label>
-            <div className="grid grid-cols-10 gap-1">
-              {bandwidthOptions.map((bandwidth) => (
-                <button
-                  key={bandwidth}
-                  type="button"
-                  className={`px-4 py-2 text-sm rounded-md border ${
-                    formData.bandwidth === bandwidth
-                      ? 'bg-blue-600 text-white border-blue-600'
-                      : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
-                  }`}
-                  onClick={() => setFormData({...formData, bandwidth: bandwidth})}
-                >
-                  {bandwidth}
-                </button>
+    <form
+      onSubmit={handleSubmit}
+      className="container mx-auto p-4 bg-white shadow rounded"
+    >
+<div className="grid grid-cols-2 gap-4 border-b pb-4">
+  {["AEnd", "BEnd"].map((end) => (
+    <div key={end} className="p-4 border rounded">
+      <h2 className="font-bold text-lg mb-2">
+        {end.replace("End", "-End")}
+      </h2>
+      {Object.keys(formData[end] || {}).map((field) => (
+        <div key={field} className="mb-2">
+          <label className="block text-sm font-medium">
+            {field.replace(/([A-Z])/g, " $1")}
+          </label>
+          {field === "Country" ? (
+            // Render a dropdown for the Country field
+            <select
+              value={formData[end]?.[field] || ""}
+              onChange={(e) => handleChange(e, end, field)}
+              className="w-full p-2 border rounded"
+            >
+              <option value="">Select a country</option>
+              {[
+                "Afghanistan",
+                "Albania",
+                "Algeria",
+                "Andorra",
+                "Angola",
+                "Antigua and Barbuda",
+                "Argentina",
+                "Armenia",
+                "Australia",
+                "Austria",
+                "Azerbaijan",
+                "Bahamas",
+                "Bahrain",
+                "Bangladesh",
+                "Barbados",
+                "Belarus",
+                "Belgium",
+                "Belize",
+                "Benin",
+                "Bhutan",
+                "Bolivia",
+                "Bosnia and Herzegovina",
+                "Botswana",
+                "Brazil",
+                "Brunei",
+                "Bulgaria",
+                "Burkina Faso",
+                "Burundi",
+                "Cabo Verde",
+                "Cambodia",
+                "Cameroon",
+                "Canada",
+                "Central African Republic",
+                "Chad",
+                "Chile",
+                "China",
+                "Colombia",
+                "Comoros",
+                "Congo (Congo-Brazzaville)",
+                "Costa Rica",
+                "Croatia",
+                "Cuba",
+                "Cyprus",
+                "Czechia",
+                "Democratic Republic of the Congo",
+                "Denmark",
+                "Djibouti",
+                "Dominica",
+                "Dominican Republic",
+                "Ecuador",
+                "Egypt",
+                "El Salvador",
+                "Equatorial Guinea",
+                "Eritrea",
+                "Estonia",
+                "Eswatini (Swaziland)",
+                "Ethiopia",
+                "Fiji",
+                "Finland",
+                "France",
+                "Gabon",
+                "Gambia",
+                "Georgia",
+                "Germany",
+                "Ghana",
+                "Greece",
+                "Grenada",
+                "Guatemala",
+                "Guinea",
+                "Guinea-Bissau",
+                "Guyana",
+                "Haiti",
+                "Honduras",
+                "Hungary",
+                "Iceland",
+                "India",
+                "Indonesia",
+                "Iran",
+                "Iraq",
+                "Ireland",
+                "Israel",
+                "Italy",
+                "Jamaica",
+                "Japan",
+                "Jordan",
+                "Kazakhstan",
+                "Kenya",
+                "Kiribati",
+                "Kuwait",
+                "Kyrgyzstan",
+                "Laos",
+                "Latvia",
+                "Lebanon",
+                "Lesotho",
+                "Liberia",
+                "Libya",
+                "Liechtenstein",
+                "Lithuania",
+                "Luxembourg",
+                "Madagascar",
+                "Malawi",
+                "Malaysia",
+                "Maldives",
+                "Mali",
+                "Malta",
+                "Marshall Islands",
+                "Mauritania",
+                "Mauritius",
+                "Mexico",
+                "Micronesia",
+                "Moldova",
+                "Monaco",
+                "Mongolia",
+                "Montenegro",
+                "Morocco",
+                "Mozambique",
+                "Myanmar (Burma)",
+                "Namibia",
+                "Nauru",
+                "Nepal",
+                "Netherlands",
+                "New Zealand",
+                "Nicaragua",
+                "Niger",
+                "Nigeria",
+                "North Korea",
+                "North Macedonia",
+                "Norway",
+                "Oman",
+                "Pakistan",
+                "Palau",
+                "Panama",
+                "Papua New Guinea",
+                "Paraguay",
+                "Peru",
+                "Philippines",
+                "Poland",
+                "Portugal",
+                "Qatar",
+                "Romania",
+                "Russia",
+                "Rwanda",
+                "Saint Kitts and Nevis",
+                "Saint Lucia",
+                "Saint Vincent and the Grenadines",
+                "Samoa",
+                "San Marino",
+                "Sao Tome and Principe",
+                "Saudi Arabia",
+                "Senegal",
+                "Serbia",
+                "Seychelles",
+                "Sierra Leone",
+                "Singapore",
+                "Slovakia",
+                "Slovenia",
+                "Solomon Islands",
+                "Somalia",
+                "South Africa",
+                "South Korea",
+                "South Sudan",
+                "Spain",
+                "Sri Lanka",
+                "Sudan",
+                "Suriname",
+                "Sweden",
+                "Switzerland",
+                "Syria",
+                "Tajikistan",
+                "Tanzania",
+                "Thailand",
+                "Timor-Leste",
+                "Togo",
+                "Tonga",
+                "Trinidad and Tobago",
+                "Tunisia",
+                "Turkey",
+                "Turkmenistan",
+                "Tuvalu",
+                "Uganda",
+                "Ukraine",
+                "United Arab Emirates",
+                "United Kingdom",
+                "United States",
+                "Uruguay",
+                "Uzbekistan",
+                "Vanuatu",
+                "Vatican City",
+                "Venezuela",
+                "Vietnam",
+                "Yemen",
+                "Zambia",
+                "Zimbabwe",
+              ].map((country, index) => (
+                <option key={index} value={country}>
+                  {country}
+                </option>
               ))}
-            </div>
-          </div>
-
-          {/* Access Providers and Circuit Diversity Section */}
-          <div className="grid grid-cols-2 gap-6">
-            {/* Access Providers Section */}
-            <div className="border rounded-lg p-4">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Access Providers
-              </label>
-              <div className="grid grid-cols-2 gap-4">
-                {Object.entries({
-                  btOpenreach: 'BT Openreach',
-                  btWholesale: 'BT Wholesale',
-                  cityFibre: 'CityFibre',
-                  colt: 'Colt',
-                  sky: 'Sky',
-                  talkTalk: 'TalkTalk',
-                  virginMedia: 'Virgin Media'
-                }).map(([key, label]) => (
-                  <label key={key} className="flex items-center space-x-2">
-                    <div className="relative inline-block w-10 mr-2 align-middle select-none">
-                      <input
-                        type="checkbox"
-                        checked={formData.accessProviders[key]}
-                        onChange={(e) => {
-                          setFormData({
-                            ...formData,
-                            accessProviders: {
-                              ...formData.accessProviders,
-                              [key]: e.target.checked
-                            }
-                          });
-                          if (errors.accessProviders) {
-                            setErrors({...errors, accessProviders: ''});
-                          }
-                        }}
-                        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
-                      />
-                      <div className={`toggle-label block overflow-hidden h-6 rounded-full ${formData.accessProviders[key] ? 'bg-blue-600' : 'bg-gray-300'}`}></div>
-                    </div>
-                    <span className="text-gray-700">{label}</span>
-                  </label>
-                ))}
-              </div>
-              {errors.accessProviders && (
-                <p className="text-red-500 text-sm mt-2">{errors.accessProviders}</p>
-              )}
-            </div>
-
-            {/* Circuit Diversity Section */}
-            <div className="border rounded-lg p-4">
-              <h4 className="font-medium mb-2">Circuit Diversity (Coming Soon)</h4>
-              <p className="text-sm text-gray-600">
-                This comes with two sets of network terminating equipment, each with a single diversity routed path which you can hope in
-                different buildings. If something goes wrong on the primary path, you can manually switch traffic to the secondary one.
-              </p>
-            </div>
-          </div>
+            </select>
+          ) : (
+            // Render a text input for other fields
+            <input
+              type="text"
+              value={formData[end]?.[field] || ""}
+              onChange={(e) => handleChange(e, end, field)}
+              className="w-full p-2 border rounded"
+            />
+          )}
         </div>
-
-        {/* Submit Button */}
-        <div className="flex justify-end mt-6">
-          <button
-            type="submit"
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-          >
-            Get Quote
-          </button>
-        </div>
-      </form>
+      ))}
     </div>
+  ))}
+</div>
+
+      <div className="flex space-x-6 mt-4">
+        {/* Port Speed Section */}
+        <div className="flex-1 border rounded-lg p-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Port or Access Speed
+          </label>
+          <div className="flex space-x-1">
+            {portSpeedOptions.map((speed) => (
+              <button
+                key={speed}
+                type="button"
+                className={`px-4 py-2 text-sm rounded-md border ${
+                  formData.PortAccessSpeed === speed
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+                onClick={() => handlePortSpeedChange(speed)}
+              >
+                {speed}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Contract Term Section */}
+        <div className="flex-1 border rounded-lg p-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Contract Term
+          </label>
+          <div className="flex space-x-1">
+            {contractTermOptions.map((term) => (
+              <button
+                key={term}
+                type="button"
+                className={`px-4 py-2 text-sm rounded-md border ${
+                  formData.ContractTerm === term
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+                onClick={() => setFormData({ ...formData, ContractTerm: term })}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Bandwidth Section */}
+      <div className="border rounded-lg p-4 mt-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Bandwidth
+        </label>
+        <div className="grid grid-cols-5 gap-1">
+          {getBandwidthOptions(formData.PortAccessSpeed).map((bandwidth) => (
+            <button
+              key={bandwidth}
+              type="button"
+              className={`px-4 py-2 text-sm rounded-md border ${
+                formData.Bandwidth === bandwidth
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+              onClick={() =>
+                setFormData((prevData) => ({
+                  ...prevData,
+                  Bandwidth: bandwidth,
+                }))
+              }
+            >
+              {bandwidth}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Access Providers Section */}
+      <div className="border rounded-lg p-4 mt-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Access Providers
+        </label>
+        <div className="grid grid-cols-2 gap-4">
+          {accessProvidersList.map((provider) => (
+            <label key={provider} className="flex items-center space-x-2">
+              <div className="relative inline-block w-10 mr-2 align-middle select-none">
+                <input
+                  type="checkbox"
+                  checked={formData.AccessProviders.includes(provider)}
+                  onChange={(e) => {
+                    const updatedProviders = e.target.checked
+                      ? [...formData.AccessProviders, provider]
+                      : formData.AccessProviders.filter((p) => p !== provider);
+                    setFormData({
+                      ...formData,
+                      AccessProviders: updatedProviders,
+                    });
+
+                    if (errors.AccessProviders) {
+                      setErrors({ ...errors, AccessProviders: "" });
+                    }
+                  }}
+                  className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer"
+                />
+                <div
+                  className={`toggle-label block overflow-hidden h-6 rounded-full ${
+                    formData.AccessProviders.includes(provider)
+                      ? "bg-blue-600"
+                      : "bg-gray-300"
+                  }`}
+                ></div>
+              </div>
+              <span className="text-gray-700">{provider}</span>
+            </label>
+          ))}
+        </div>
+        {errors.AccessProviders && (
+          <p className="text-red-500 text-sm mt-2">{errors.AccessProviders}</p>
+        )}
+      </div>
+
+      {/* Circuit Diversity Section */}
+      <div className="border rounded-lg p-4 mt-4">
+        <label className="flex items-center space-x-2">
+          <span>Circuit Diversity (Coming Soon)</span>
+          <p>
+            This comes with two sets of network terminating equipment,each with
+            a single diversely routed path which you can house in differnt
+            buildings. If something goes wrong on the primary path, you can
+            manually switch traffic to the secondary one.
+          </p>
+        </label>
+      </div>
+
+      <button
+        type="submit"
+        className="mt-4 p-2 bg-blue-600 text-white rounded"
+        disabled={loading}
+      >
+        {loading ? "Getting Quote..." : "Get Quote"}
+      </button>
+    </form>
   );
 };
 
