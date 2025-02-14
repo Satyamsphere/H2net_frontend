@@ -1,26 +1,54 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
+import { useLocation,useSearchParams  } from "react-router-dom";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const DIAQuote = () => {
+  const location = useLocation();
+ // const galk_uk = new URLSearchParams(location.search).get("galk");
+  const [searchParams] = useSearchParams();  //Retrieve the Galk parameter from SitePage.jsx
+  const galk = searchParams.get("galk"); // Retrieve the Galk parameter from the URL
+  
+  const siteData = location.state?.siteData;
+
+
+
+
+
   const [formData, setFormData] = useState({
-    CustomerName: "",
-    Sitename: "",
-    SiteID: "",
+    CustomerName: siteData?.CustomerName  ||"",
+    Sitename:siteData?.Sitename || "",
+    SiteID: siteData?.SiteID || "",
     RoomName: "",
-    BuildingName: "",
-    StreetNumber: "",
+    BuildingName: siteData?.BuildingName || "",
+    StreetNumber: siteData?.StreetNumber || "",
     StreetName: "",
-    City: "",
+    City: siteData?.City || "",
     Zipcode: "",
-    Country: "",
-    Galk: "",
+    Country: siteData?.Country || "",
+    //Galk: galk_uk ,
+     Galk: siteData?.Galk || "",
     PortAccessSpeed: "",
     ContractTerm: "",
     Bandwidth: "",
     AccessProviders: [],
     Ipv4Subnet: "",
   });
+
+
+
+
+
+  // Update Galk in state when it changes
+  // useEffect(() => {
+  //   setFormData((prevFormData) => ({
+  //     ...prevFormData,
+  //     Galk: galk_uk, // Update only the Galk field
+  //   }));
+  // }, [galk_uk]);
+
+
+
 
   const [errors, setErrors] = useState({});
 
@@ -90,7 +118,8 @@ const DIAQuote = () => {
 
     try {
       const response = await fetch(
-        "http://localhost:5000/api/quotes/diaquotes",
+        // "http://localhost:5000/api/quotes/diaquotes",
+        `http://localhost:5000/api/quotes/sites/dia/${siteData?.Galk}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,6 +129,7 @@ const DIAQuote = () => {
             AccessProviders: formData.AccessProviders.filter(
               (provider) => provider
             ), // Remove falsy values
+            Galk: galk, 
           }),
         }
       );
@@ -113,26 +143,27 @@ const DIAQuote = () => {
         });
 
         // Delay form reset to allow toast to be visible
-        setTimeout(() => {
+        useEffect(() => {
           setFormData({
-            CustomerName: "",
-            Sitename: "",
-            SiteID: "",
+            CustomerName: siteData.CustomerName||"",
+            Sitename: siteData.Sitename || "",
+            SiteID: siteData.SiteID || "",
             RoomName: "",
-            BuildingName: "",
-            StreetNumber: "",
+            BuildingName:siteData.BuildingName || "",
+            StreetNumber: siteData.StreetNumber || "",
             StreetName: "",
-            City: "",
-            Zipcode: "",
+            City: siteData.City || "",
+            Zipcode: siteData.Zipcode || "",
             Country: "",
-            Galk: "",
+            Galk: siteData.Galk || "",
+            // Galk: "",
             PortAccessSpeed: "",
             ContractTerm: "",
             Bandwidth: "",
             AccessProviders: [], // Ensure it's an array
             Ipv4Subnet: "",
           });
-        }, 1000); // ⏳ Delay reset by 1 second to allow toast visibility
+        }, [siteData]); 
 
         console.log("Form submitted successfully:", result);
       } else {
@@ -177,7 +208,8 @@ const DIAQuote = () => {
   };
 
   const isRipePolicyRequired = ["/28", "/27", "/26"].includes(
-    formData.ipv4SubnetSize
+    // formData.ipv4SubnetSize
+    formData.Ipv4Subnet
   );
 
   // Handle form submission

@@ -4,7 +4,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 
-const OfficeFormManual = ({ value, onChange }) => {
+const UKOfficeFormManual = ({ value, onChange }) => {
   const [formData, setFormData] = useState({
     CustomerName: "",
     Sitename: "",
@@ -15,7 +15,7 @@ const OfficeFormManual = ({ value, onChange }) => {
     City: "",
     Zipcode: "",
     Country: "",
-    // Galk: "",
+    Galk: "",
     Notes: "",
     SiteStatus: false,
   });
@@ -89,7 +89,7 @@ const OfficeFormManual = ({ value, onChange }) => {
           City: "",
           Zipcode: "",
           Country: "",
-          // Galk: "",
+          Galk: "",
           Notes: "",
           SiteStatus: false,
         });
@@ -113,15 +113,13 @@ const OfficeFormManual = ({ value, onChange }) => {
       <ToastContainer />
 
       <h2 className="text-2xl font-bold mb-6 text-center">
-      International Office Site Data Form
+         UK Office Site Data Form
       </h2>
-
-      <Link to="/office-form-uk">
+      <Link to="/office-form">
         <button className="px-5 py-2 bg-gradient-to-r from-blue-500 to-blue-700 text-white font-semibold rounded-lg shadow-md hover:from-blue-600 hover:to-blue-800 transition-all duration-300 transform hover:scale-105">
-          For UK-Sites Specific
+          For International Sites 
         </button>
       </Link>
-
       {/* Site Status Toggle */}
       <div className="flex items-center justify-center my-4 border border-green-600 rounded-lg overflow-hidden">
         <button
@@ -503,9 +501,9 @@ const OfficeFormManual = ({ value, onChange }) => {
           </select>
         </div>
         {/* Galk */}
-        {/* <div>
+        <div>
           <label className="block text-sm font-medium text-gray-700">
-          Galk
+            Galk
           </label>
           <input
             type="text"
@@ -516,7 +514,7 @@ const OfficeFormManual = ({ value, onChange }) => {
             required
             className="w-full px-3 py-2 border rounded-md"
           />
-        </div> */}
+        </div>
         {/* Notes */}
         <div>
           <label className="block text-sm font-medium text-gray-700">
@@ -580,4 +578,4 @@ const OfficeFormManual = ({ value, onChange }) => {
   );
 };
 
-export default OfficeFormManual;
+export default UKOfficeFormManual;

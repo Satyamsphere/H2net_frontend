@@ -1,24 +1,30 @@
 import React, { useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const PointToPointQuote = () => {
+  const location = useLocation();
+  const [searchParams] = useSearchParams(); //Retrieve the Galk parameter from SitePage.jsx
+  const galk = searchParams.get("galk"); // Retrieve the Galk parameter from the URL
+ const siteData = location.state?.siteData;
   const [formData, setFormData] = useState({
     AEnd: {
-      CustomerName: "",
-      Sitename: "",
-      SiteID: "",
+      CustomerName: siteData?.CustomerName  ||"",
+      Sitename:siteData?.Sitename || "",
+      SiteID: siteData?.SiteID || "",
       RoomName: "",
-      BuildingName: "",
-      StreetNumber: "",
+      BuildingName: siteData?.BuildingName || "",
+      StreetNumber: siteData?.StreetNumber || "",
       StreetName: "",
-      City: "",
-      Zipcode: "",
-      Country: "",
+      City: siteData?.City || "",
+      Galk: siteData?.Galk || "",
+      Zipcode: siteData?.Zipcode ||"",
+      Country: siteData?.Country || "",
     },
     BEnd: {
-      CustomerName: "",
+      CustomerName: siteData?.CustomerName  ||"",
       Sitename: "",
       SiteID: "",
       RoomName: "",
@@ -27,8 +33,9 @@ const PointToPointQuote = () => {
       StreetName: "",
       City: "",
       Zipcode: "",
-      Country: "",
+      Country: siteData?.Country || "",
     },
+
     PortAccessSpeed: "",
     ContractTerm: "",
     Bandwidth: "",
@@ -115,283 +122,283 @@ const PointToPointQuote = () => {
     e.preventDefault();
     setLoading(true);
     setErrors({});
-  
+
     const requestData = {
       ...formData,
       AEnd: { ...formData.AEnd, Zipcode: String(formData.AEnd.Zipcode) },
       BEnd: { ...formData.BEnd, Zipcode: String(formData.BEnd.Zipcode) },
+      Galk: galk, // Include the Galk value
     };
-  
+
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/quotes/ppquotes",
+        // "http://localhost:5000/api/quotes/ppquotes",
+        `http://localhost:5000/api/quotes/sites/p2p/${siteData?.Galk}`,
         requestData,
         {
           headers: { "Content-Type": "application/json" },
         }
       );
-      
+
       setResponse(res.data);
-      console.log(res)
-  
+      console.log(res);
+
       // Show success toast message
       toast.success("Data submitted successfully!", {
         position: "top-center",
         autoClose: 3000, // 3 seconds
       });
-  
     } catch (err) {
       setErrors({ submit: err.response?.data?.message || "An error occurred" });
-  
+
       // Show error toast message
       toast.error("Submission failed. Please try again.", {
         position: "top-right",
         autoClose: 3000,
       });
-  
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   return (
     <form
       onSubmit={handleSubmit}
       className="container mx-auto p-4 bg-white shadow rounded"
     >
-<div className="grid grid-cols-2 gap-4 border-b pb-4">
-  {["AEnd", "BEnd"].map((end) => (
-    <div key={end} className="p-4 border rounded">
-      <h2 className="font-bold text-lg mb-2">
-        {end.replace("End", "-End")}
-      </h2>
-      {Object.keys(formData[end] || {}).map((field) => (
-        <div key={field} className="mb-2">
-          <label className="block text-sm font-medium">
-            {field.replace(/([A-Z])/g, " $1")}
-          </label>
-          {field === "Country" ? (
-            // Render a dropdown for the Country field
-            <select
-              value={formData[end]?.[field] || ""}
-              onChange={(e) => handleChange(e, end, field)}
-              className="w-full p-2 border rounded"
-            >
-              <option value="">Select a country</option>
-              {[
-                "Afghanistan",
-                "Albania",
-                "Algeria",
-                "Andorra",
-                "Angola",
-                "Antigua and Barbuda",
-                "Argentina",
-                "Armenia",
-                "Australia",
-                "Austria",
-                "Azerbaijan",
-                "Bahamas",
-                "Bahrain",
-                "Bangladesh",
-                "Barbados",
-                "Belarus",
-                "Belgium",
-                "Belize",
-                "Benin",
-                "Bhutan",
-                "Bolivia",
-                "Bosnia and Herzegovina",
-                "Botswana",
-                "Brazil",
-                "Brunei",
-                "Bulgaria",
-                "Burkina Faso",
-                "Burundi",
-                "Cabo Verde",
-                "Cambodia",
-                "Cameroon",
-                "Canada",
-                "Central African Republic",
-                "Chad",
-                "Chile",
-                "China",
-                "Colombia",
-                "Comoros",
-                "Congo (Congo-Brazzaville)",
-                "Costa Rica",
-                "Croatia",
-                "Cuba",
-                "Cyprus",
-                "Czechia",
-                "Democratic Republic of the Congo",
-                "Denmark",
-                "Djibouti",
-                "Dominica",
-                "Dominican Republic",
-                "Ecuador",
-                "Egypt",
-                "El Salvador",
-                "Equatorial Guinea",
-                "Eritrea",
-                "Estonia",
-                "Eswatini (Swaziland)",
-                "Ethiopia",
-                "Fiji",
-                "Finland",
-                "France",
-                "Gabon",
-                "Gambia",
-                "Georgia",
-                "Germany",
-                "Ghana",
-                "Greece",
-                "Grenada",
-                "Guatemala",
-                "Guinea",
-                "Guinea-Bissau",
-                "Guyana",
-                "Haiti",
-                "Honduras",
-                "Hungary",
-                "Iceland",
-                "India",
-                "Indonesia",
-                "Iran",
-                "Iraq",
-                "Ireland",
-                "Israel",
-                "Italy",
-                "Jamaica",
-                "Japan",
-                "Jordan",
-                "Kazakhstan",
-                "Kenya",
-                "Kiribati",
-                "Kuwait",
-                "Kyrgyzstan",
-                "Laos",
-                "Latvia",
-                "Lebanon",
-                "Lesotho",
-                "Liberia",
-                "Libya",
-                "Liechtenstein",
-                "Lithuania",
-                "Luxembourg",
-                "Madagascar",
-                "Malawi",
-                "Malaysia",
-                "Maldives",
-                "Mali",
-                "Malta",
-                "Marshall Islands",
-                "Mauritania",
-                "Mauritius",
-                "Mexico",
-                "Micronesia",
-                "Moldova",
-                "Monaco",
-                "Mongolia",
-                "Montenegro",
-                "Morocco",
-                "Mozambique",
-                "Myanmar (Burma)",
-                "Namibia",
-                "Nauru",
-                "Nepal",
-                "Netherlands",
-                "New Zealand",
-                "Nicaragua",
-                "Niger",
-                "Nigeria",
-                "North Korea",
-                "North Macedonia",
-                "Norway",
-                "Oman",
-                "Pakistan",
-                "Palau",
-                "Panama",
-                "Papua New Guinea",
-                "Paraguay",
-                "Peru",
-                "Philippines",
-                "Poland",
-                "Portugal",
-                "Qatar",
-                "Romania",
-                "Russia",
-                "Rwanda",
-                "Saint Kitts and Nevis",
-                "Saint Lucia",
-                "Saint Vincent and the Grenadines",
-                "Samoa",
-                "San Marino",
-                "Sao Tome and Principe",
-                "Saudi Arabia",
-                "Senegal",
-                "Serbia",
-                "Seychelles",
-                "Sierra Leone",
-                "Singapore",
-                "Slovakia",
-                "Slovenia",
-                "Solomon Islands",
-                "Somalia",
-                "South Africa",
-                "South Korea",
-                "South Sudan",
-                "Spain",
-                "Sri Lanka",
-                "Sudan",
-                "Suriname",
-                "Sweden",
-                "Switzerland",
-                "Syria",
-                "Tajikistan",
-                "Tanzania",
-                "Thailand",
-                "Timor-Leste",
-                "Togo",
-                "Tonga",
-                "Trinidad and Tobago",
-                "Tunisia",
-                "Turkey",
-                "Turkmenistan",
-                "Tuvalu",
-                "Uganda",
-                "Ukraine",
-                "United Arab Emirates",
-                "United Kingdom",
-                "United States",
-                "Uruguay",
-                "Uzbekistan",
-                "Vanuatu",
-                "Vatican City",
-                "Venezuela",
-                "Vietnam",
-                "Yemen",
-                "Zambia",
-                "Zimbabwe",
-              ].map((country, index) => (
-                <option key={index} value={country}>
-                  {country}
-                </option>
-              ))}
-            </select>
-          ) : (
-            // Render a text input for other fields
-            <input
-              type="text"
-              value={formData[end]?.[field] || ""}
-              onChange={(e) => handleChange(e, end, field)}
-              className="w-full p-2 border rounded"
-            />
-          )}
-        </div>
-      ))}
-    </div>
-  ))}
-</div>
+      <div className="grid grid-cols-2 gap-4 border-b pb-4">
+        {["AEnd", "BEnd"].map((end) => (
+          <div key={end} className="p-4 border rounded">
+            <h2 className="font-bold text-lg mb-2">
+              {end.replace("End", "-End")}
+            </h2>
+            {Object.keys(formData[end] || {}).map((field) => (
+              <div key={field} className="mb-2">
+                <label className="block text-sm font-medium">
+                  {field.replace(/([A-Z])/g, " $1")}
+                </label>
+                {field === "Country" ? (
+                  // Render a dropdown for the Country field
+                  <select
+                    value={formData[end]?.[field] || ""}
+                    onChange={(e) => handleChange(e, end, field)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Select a country</option>
+                    {[
+                      "Afghanistan",
+                      "Albania",
+                      "Algeria",
+                      "Andorra",
+                      "Angola",
+                      "Antigua and Barbuda",
+                      "Argentina",
+                      "Armenia",
+                      "Australia",
+                      "Austria",
+                      "Azerbaijan",
+                      "Bahamas",
+                      "Bahrain",
+                      "Bangladesh",
+                      "Barbados",
+                      "Belarus",
+                      "Belgium",
+                      "Belize",
+                      "Benin",
+                      "Bhutan",
+                      "Bolivia",
+                      "Bosnia and Herzegovina",
+                      "Botswana",
+                      "Brazil",
+                      "Brunei",
+                      "Bulgaria",
+                      "Burkina Faso",
+                      "Burundi",
+                      "Cabo Verde",
+                      "Cambodia",
+                      "Cameroon",
+                      "Canada",
+                      "Central African Republic",
+                      "Chad",
+                      "Chile",
+                      "China",
+                      "Colombia",
+                      "Comoros",
+                      "Congo (Congo-Brazzaville)",
+                      "Costa Rica",
+                      "Croatia",
+                      "Cuba",
+                      "Cyprus",
+                      "Czechia",
+                      "Democratic Republic of the Congo",
+                      "Denmark",
+                      "Djibouti",
+                      "Dominica",
+                      "Dominican Republic",
+                      "Ecuador",
+                      "Egypt",
+                      "El Salvador",
+                      "Equatorial Guinea",
+                      "Eritrea",
+                      "Estonia",
+                      "Eswatini (Swaziland)",
+                      "Ethiopia",
+                      "Fiji",
+                      "Finland",
+                      "France",
+                      "Gabon",
+                      "Gambia",
+                      "Georgia",
+                      "Germany",
+                      "Ghana",
+                      "Greece",
+                      "Grenada",
+                      "Guatemala",
+                      "Guinea",
+                      "Guinea-Bissau",
+                      "Guyana",
+                      "Haiti",
+                      "Honduras",
+                      "Hungary",
+                      "Iceland",
+                      "India",
+                      "Indonesia",
+                      "Iran",
+                      "Iraq",
+                      "Ireland",
+                      "Israel",
+                      "Italy",
+                      "Jamaica",
+                      "Japan",
+                      "Jordan",
+                      "Kazakhstan",
+                      "Kenya",
+                      "Kiribati",
+                      "Kuwait",
+                      "Kyrgyzstan",
+                      "Laos",
+                      "Latvia",
+                      "Lebanon",
+                      "Lesotho",
+                      "Liberia",
+                      "Libya",
+                      "Liechtenstein",
+                      "Lithuania",
+                      "Luxembourg",
+                      "Madagascar",
+                      "Malawi",
+                      "Malaysia",
+                      "Maldives",
+                      "Mali",
+                      "Malta",
+                      "Marshall Islands",
+                      "Mauritania",
+                      "Mauritius",
+                      "Mexico",
+                      "Micronesia",
+                      "Moldova",
+                      "Monaco",
+                      "Mongolia",
+                      "Montenegro",
+                      "Morocco",
+                      "Mozambique",
+                      "Myanmar (Burma)",
+                      "Namibia",
+                      "Nauru",
+                      "Nepal",
+                      "Netherlands",
+                      "New Zealand",
+                      "Nicaragua",
+                      "Niger",
+                      "Nigeria",
+                      "North Korea",
+                      "North Macedonia",
+                      "Norway",
+                      "Oman",
+                      "Pakistan",
+                      "Palau",
+                      "Panama",
+                      "Papua New Guinea",
+                      "Paraguay",
+                      "Peru",
+                      "Philippines",
+                      "Poland",
+                      "Portugal",
+                      "Qatar",
+                      "Romania",
+                      "Russia",
+                      "Rwanda",
+                      "Saint Kitts and Nevis",
+                      "Saint Lucia",
+                      "Saint Vincent and the Grenadines",
+                      "Samoa",
+                      "San Marino",
+                      "Sao Tome and Principe",
+                      "Saudi Arabia",
+                      "Senegal",
+                      "Serbia",
+                      "Seychelles",
+                      "Sierra Leone",
+                      "Singapore",
+                      "Slovakia",
+                      "Slovenia",
+                      "Solomon Islands",
+                      "Somalia",
+                      "South Africa",
+                      "South Korea",
+                      "South Sudan",
+                      "Spain",
+                      "Sri Lanka",
+                      "Sudan",
+                      "Suriname",
+                      "Sweden",
+                      "Switzerland",
+                      "Syria",
+                      "Tajikistan",
+                      "Tanzania",
+                      "Thailand",
+                      "Timor-Leste",
+                      "Togo",
+                      "Tonga",
+                      "Trinidad and Tobago",
+                      "Tunisia",
+                      "Turkey",
+                      "Turkmenistan",
+                      "Tuvalu",
+                      "Uganda",
+                      "Ukraine",
+                      "United Arab Emirates",
+                      "United Kingdom",
+                      "United States",
+                      "Uruguay",
+                      "Uzbekistan",
+                      "Vanuatu",
+                      "Vatican City",
+                      "Venezuela",
+                      "Vietnam",
+                      "Yemen",
+                      "Zambia",
+                      "Zimbabwe",
+                    ].map((country, index) => (
+                      <option key={index} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  // Render a text input for other fields
+                  <input
+                    type="text"
+                    value={formData[end]?.[field] || ""}
+                    onChange={(e) => handleChange(e, end, field)}
+                    className="w-full p-2 border rounded"
+                  />
+                )}
+              </div>
+            ))}
+          </div>
+        ))}
+      </div>
 
       <div className="flex space-x-6 mt-4">
         {/* Port Speed Section */}

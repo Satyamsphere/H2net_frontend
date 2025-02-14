@@ -1,141 +1,496 @@
 import React, { useState } from "react";
+import { useLocation, useSearchParams } from "react-router-dom";
+import axios from "axios";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const PlaceOrder = () => {
-  const [formDataA, setFormDataA] = useState({
-    customerName: "",
-    siteName: "",
-    siteId: "",
-    roomName: "",
-    buildingName: "",
-    buildingStreetNumber: "",
-    streetName: "",
-    townCity: "",
-    postCode: "",
-    country: "United Kingdom",
-    galk: "",
+  const location = useLocation();
+  const [searchParams] = useSearchParams(); //Retrieve the Galk parameter from SitePage.jsx
+  const galk = searchParams.get("galk"); // Retrieve the Galk parameter from the URL
+ const siteData = location.state?.siteData;
+  const [formData, setFormData] = useState({
+    AEnd: {
+      CustomerName: "",
+      Sitename:"",
+      SiteID: "",
+      RoomName: "",
+      BuildingName: "",
+      StreetNumber: "",
+      StreetName: "",
+      City: "",
+      Galk: "",
+      Zipcode: "",
+      Country: "",
+    },
+    BEnd: {
+      CustomerName: "",
+      Sitename: "",
+      SiteID: "",
+      RoomName: "",
+      BuildingName: "",
+      StreetNumber: "",
+      StreetName: "",
+      City: "",
+      Zipcode: "",
+      Country: "",
+    },
+
+    PortAccessSpeed: "",
+    ContractTerm: "",
+    Bandwidth: "",
+    // AccessProviders: [],
+    // CircuitDiversity: false,
   });
 
-  const [formDataB, setFormDataB] = useState({
-    customerName: "",
-    siteName: "",
-    siteId: "",
-    roomName: "",
-    buildingName: "",
-    buildingStreetNumber: "",
-    streetName: "",
-    townCity: "",
-    postCode: "",
-    country: "United Kingdom",
-    // galk: "",
-  });
+  const [errors, setErrors] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [response, setResponse] = useState(null);
 
-  const [portSpeed, setPortSpeed] = useState("1 Gbps");
-  const [contractTerm, setContractTerm] = useState("36 Months");
-  const [bandwidth, setBandwidth] = useState("1000 Mbps");
+  const portSpeedOptions = ["100 Mbps", "1 Gbps", "10 Gbps", "100 Gbps"];
+  const contractTermOptions = [
+    "12 Months",
+    "24 Months",
+    "36 Months",
+    "48 Months",
+    "60 Months",
+    "72 Months",
+  ];
+  const accessProvidersList = [
+    "BT Openreach",
+    "BT Wholesale",
+    "CityFibre",
+    "Colt",
+    "Sky",
+    "TalkTalk",
+    "Virgin Media",
+  ];
 
-  const handleChangeA = (e) => {
-    const { name, value } = e.target;
-    setFormDataA({ ...formDataA, [name]: value });
+  const getBandwidthOptions = (portSpeed) => {
+    let min, max, unit;
+
+    switch (portSpeed) {
+      case "100 Mbps":
+        min = 10;
+        max = 100;
+        unit = "Mbps";
+        break;
+      case "1 Gbps":
+        min = 100;
+        max = 1000;
+        unit = "Mbps";
+        break;
+      case "10 Gbps":
+        min = 1;
+        max = 10;
+        unit = "Gbps";
+        break;
+      case "100 Gbps":
+        min = 10;
+        max = 100;
+        unit = "Gbps";
+        break;
+      default:
+        return [];
+    }
+
+    return Array.from({ length: 10 }, (_, i) => {
+      const value = min + (i * (max - min)) / 9; // Distribute values evenly
+      return `${value} ${unit}`;
+    });
   };
 
-  const handleChangeB = (e) => {
-    const { name, value } = e.target;
-    setFormDataB({ ...formDataB, [name]: value });
+  const handleChange = (e, section, field) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      [section]: {
+        ...prevData[section],
+        [field]: e.target.value,
+      },
+    }));
   };
 
-  const handleSubmit = (e) => {
+  const handlePortSpeedChange = (speed) => {
+    setFormData((prevData) => ({
+      ...prevData,
+      PortAccessSpeed: speed,
+      Bandwidth: "", // Reset bandwidth on speed change
+    }));
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("A-End Data:", formDataA);
-    console.log("B-End Data:", formDataB);
-    console.log("Port Speed:", portSpeed);
-    console.log("Contract Term:", contractTerm);
-    console.log("Bandwidth:", bandwidth);
+    setLoading(true);
+    setErrors({});
+
+    const requestData = {
+      ...formData,
+      AEnd: { ...formData.AEnd, Zipcode: String(formData.AEnd.Zipcode) },
+      BEnd: { ...formData.BEnd, Zipcode: String(formData.BEnd.Zipcode) },
+      Galk: galk, // Include the Galk value
+    };
+
+    try {
+      const res = await axios.post(
+        
+        "http://localhost:5000/api/order/placeorders",
+        requestData,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      setResponse(res.data);
+      console.log(res);
+
+      // Show success toast message
+      toast.success("Data submitted successfully!", {
+        position: "top-center",
+        autoClose: 3000, // 3 seconds
+      });
+
+      setFormData();
+    } catch (err) {
+      setErrors({ submit: err.response?.data?.message || "An error occurred" });
+
+      // Show error toast message
+      toast.error("Submission failed. Please try again.", {
+        position: "top-right",
+        autoClose: 3000,
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
-    <div className="max-w-full mx-auto p-6 bg-white shadow-md rounded-lg">
-      <h2 className="text-lg font-semibold mb-4 text-blue-600">A-End</h2>
-      <form className="grid grid-cols-4 gap-4 border-b pb-4 mb-4">
-        {Object.keys(formDataA).map((key) => (
-          <div key={key} className="col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-            </label>
-            <input
-              type="text"
-              name={key}
-              value={formDataA[key]}
-              onChange={handleChangeA}
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
+    <form
+      onSubmit={handleSubmit}
+      className="container mx-auto p-4 bg-white shadow rounded"
+    >
+       <ToastContainer />
+      <div className="grid grid-cols-2 gap-4 border-b pb-4">
+        {["AEnd", "BEnd"].map((end) => (
+          <div key={end} className="p-4 border rounded">
+            <h2 className="font-bold text-lg mb-2">
+              {end.replace("End", "-End")}
+            </h2>
+            {Object.keys(formData[end] || {}).map((field) => (
+              <div key={field} className="mb-2">
+                <label className="block text-sm font-medium">
+                  {field.replace(/([A-Z])/g, " $1")}
+                </label>
+                {field === "Country" ? (
+                  // Render a dropdown for the Country field
+                  <select
+                    value={formData[end]?.[field] || ""}
+                    onChange={(e) => handleChange(e, end, field)}
+                    className="w-full p-2 border rounded"
+                  >
+                    <option value="">Select a country</option>
+                    {[
+                      "Afghanistan",
+                      "Albania",
+                      "Algeria",
+                      "Andorra",
+                      "Angola",
+                      "Antigua and Barbuda",
+                      "Argentina",
+                      "Armenia",
+                      "Australia",
+                      "Austria",
+                      "Azerbaijan",
+                      "Bahamas",
+                      "Bahrain",
+                      "Bangladesh",
+                      "Barbados",
+                      "Belarus",
+                      "Belgium",
+                      "Belize",
+                      "Benin",
+                      "Bhutan",
+                      "Bolivia",
+                      "Bosnia and Herzegovina",
+                      "Botswana",
+                      "Brazil",
+                      "Brunei",
+                      "Bulgaria",
+                      "Burkina Faso",
+                      "Burundi",
+                      "Cabo Verde",
+                      "Cambodia",
+                      "Cameroon",
+                      "Canada",
+                      "Central African Republic",
+                      "Chad",
+                      "Chile",
+                      "China",
+                      "Colombia",
+                      "Comoros",
+                      "Congo (Congo-Brazzaville)",
+                      "Costa Rica",
+                      "Croatia",
+                      "Cuba",
+                      "Cyprus",
+                      "Czechia",
+                      "Democratic Republic of the Congo",
+                      "Denmark",
+                      "Djibouti",
+                      "Dominica",
+                      "Dominican Republic",
+                      "Ecuador",
+                      "Egypt",
+                      "El Salvador",
+                      "Equatorial Guinea",
+                      "Eritrea",
+                      "Estonia",
+                      "Eswatini (Swaziland)",
+                      "Ethiopia",
+                      "Fiji",
+                      "Finland",
+                      "France",
+                      "Gabon",
+                      "Gambia",
+                      "Georgia",
+                      "Germany",
+                      "Ghana",
+                      "Greece",
+                      "Grenada",
+                      "Guatemala",
+                      "Guinea",
+                      "Guinea-Bissau",
+                      "Guyana",
+                      "Haiti",
+                      "Honduras",
+                      "Hungary",
+                      "Iceland",
+                      "India",
+                      "Indonesia",
+                      "Iran",
+                      "Iraq",
+                      "Ireland",
+                      "Israel",
+                      "Italy",
+                      "Jamaica",
+                      "Japan",
+                      "Jordan",
+                      "Kazakhstan",
+                      "Kenya",
+                      "Kiribati",
+                      "Kuwait",
+                      "Kyrgyzstan",
+                      "Laos",
+                      "Latvia",
+                      "Lebanon",
+                      "Lesotho",
+                      "Liberia",
+                      "Libya",
+                      "Liechtenstein",
+                      "Lithuania",
+                      "Luxembourg",
+                      "Madagascar",
+                      "Malawi",
+                      "Malaysia",
+                      "Maldives",
+                      "Mali",
+                      "Malta",
+                      "Marshall Islands",
+                      "Mauritania",
+                      "Mauritius",
+                      "Mexico",
+                      "Micronesia",
+                      "Moldova",
+                      "Monaco",
+                      "Mongolia",
+                      "Montenegro",
+                      "Morocco",
+                      "Mozambique",
+                      "Myanmar (Burma)",
+                      "Namibia",
+                      "Nauru",
+                      "Nepal",
+                      "Netherlands",
+                      "New Zealand",
+                      "Nicaragua",
+                      "Niger",
+                      "Nigeria",
+                      "North Korea",
+                      "North Macedonia",
+                      "Norway",
+                      "Oman",
+                      "Pakistan",
+                      "Palau",
+                      "Panama",
+                      "Papua New Guinea",
+                      "Paraguay",
+                      "Peru",
+                      "Philippines",
+                      "Poland",
+                      "Portugal",
+                      "Qatar",
+                      "Romania",
+                      "Russia",
+                      "Rwanda",
+                      "Saint Kitts and Nevis",
+                      "Saint Lucia",
+                      "Saint Vincent and the Grenadines",
+                      "Samoa",
+                      "San Marino",
+                      "Sao Tome and Principe",
+                      "Saudi Arabia",
+                      "Senegal",
+                      "Serbia",
+                      "Seychelles",
+                      "Sierra Leone",
+                      "Singapore",
+                      "Slovakia",
+                      "Slovenia",
+                      "Solomon Islands",
+                      "Somalia",
+                      "South Africa",
+                      "South Korea",
+                      "South Sudan",
+                      "Spain",
+                      "Sri Lanka",
+                      "Sudan",
+                      "Suriname",
+                      "Sweden",
+                      "Switzerland",
+                      "Syria",
+                      "Tajikistan",
+                      "Tanzania",
+                      "Thailand",
+                      "Timor-Leste",
+                      "Togo",
+                      "Tonga",
+                      "Trinidad and Tobago",
+                      "Tunisia",
+                      "Turkey",
+                      "Turkmenistan",
+                      "Tuvalu",
+                      "Uganda",
+                      "Ukraine",
+                      "United Arab Emirates",
+                      "United Kingdom",
+                      "United States",
+                      "Uruguay",
+                      "Uzbekistan",
+                      "Vanuatu",
+                      "Vatican City",
+                      "Venezuela",
+                      "Vietnam",
+                      "Yemen",
+                      "Zambia",
+                      "Zimbabwe",
+                    ].map((country, index) => (
+                      <option key={index} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  // Render a text input for other fields
+                  <input
+                    type="text"
+                    value={formData[end]?.[field] || ""}
+                    onChange={(e) => handleChange(e, end, field)}
+                    className="w-full p-2 border rounded"
+                  />
+                )}
+              </div>
+            ))}
           </div>
         ))}
-      </form>
-      <h2 className="text-lg font-semibold mb-4 text-blue-600">B-End</h2>
-      <form className="grid grid-cols-4 gap-4 border-b pb-4 mb-4">
-        {Object.keys(formDataB).map((key) => (
-          <div key={key} className="col-span-1">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              {key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase())}
-            </label>
-            <input
-              type="text"
-              name={key}
-              value={formDataB[key]}
-              onChange={handleChangeB}
-              className="w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500"
-            />
+      </div>
+
+      <div className="flex space-x-6 mt-4">
+        {/* Port Speed Section */}
+        <div className="flex-1 border rounded-lg p-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Port or Access Speed
+          </label>
+          <div className="flex space-x-1">
+            {portSpeedOptions.map((speed) => (
+              <button
+                key={speed}
+                type="button"
+                className={`px-4 py-2 text-sm rounded-md border ${
+                  formData.PortAccessSpeed === speed
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+                onClick={() => handlePortSpeedChange(speed)}
+              >
+                {speed}
+              </button>
+            ))}
           </div>
-        ))}
-      </form>
-      
-      <h2 className="text-lg font-semibold mb-4 text-blue-600">Port or Access Speed</h2>
-      <div className="flex gap-4 mb-4">
-        {["100 Mbps", "1 Gbps", "10 Gbps", "100 Gbps"].map((speed) => (
-          <button
-            key={speed}
-            type="button"
-            className={`px-4 py-2 rounded-md ${portSpeed === speed ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-            onClick={() => setPortSpeed(speed)}
-          >
-            {speed}
-          </button>
-        ))}
+        </div>
+
+        {/* Contract Term Section */}
+        <div className="flex-1 border rounded-lg p-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Contract Term
+          </label>
+          <div className="flex space-x-1">
+            {contractTermOptions.map((term) => (
+              <button
+                key={term}
+                type="button"
+                className={`px-4 py-2 text-sm rounded-md border ${
+                  formData.ContractTerm === term
+                    ? "bg-blue-600 text-white border-blue-600"
+                    : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+                }`}
+                onClick={() => setFormData({ ...formData, ContractTerm: term })}
+              >
+                {term}
+              </button>
+            ))}
+          </div>
+        </div>
       </div>
-      
-      <h2 className="text-lg font-semibold mb-4 text-blue-600">Bandwidth</h2>
-      <div className="flex gap-2 mb-4 overflow-x-auto">
-        {["100 Mbps", "200 Mbps", "300 Mbps", "400 Mbps", "500 Mbps", "600 Mbps", "700 Mbps", "800 Mbps", "900 Mbps", "1000 Mbps"].map((bw) => (
-          <button
-            key={bw}
-            type="button"
-            className={`px-4 py-2 rounded-md ${bandwidth === bw ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-            onClick={() => setBandwidth(bw)}
-          >
-            {bw}
-          </button>
-        ))}
+
+      {/* Bandwidth Section */}
+      <div className="border rounded-lg p-4 mt-4">
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Bandwidth
+        </label>
+        <div className="grid grid-cols-5 gap-1">
+          {getBandwidthOptions(formData.PortAccessSpeed).map((bandwidth) => (
+            <button
+              key={bandwidth}
+              type="button"
+              className={`px-4 py-2 text-sm rounded-md border ${
+                formData.Bandwidth === bandwidth
+                  ? "bg-blue-600 text-white border-blue-600"
+                  : "bg-white text-gray-700 border-gray-300 hover:bg-gray-50"
+              }`}
+              onClick={() =>
+                setFormData((prevData) => ({
+                  ...prevData,
+                  Bandwidth: bandwidth,
+                }))
+              }
+            >
+              {bandwidth}
+            </button>
+          ))}
+        </div>
       </div>
+
+     
+
       
-      <h2 className="text-lg font-semibold mb-4 text-blue-600">Contract Term</h2>
-      <div className="flex gap-4 mb-4">
-        {["12 Months", "24 Months", "36 Months", "48 Months", "60 Months"].map((term) => (
-          <button
-            key={term}
-            type="button"
-            className={`px-4 py-2 rounded-md ${contractTerm === term ? "bg-blue-500 text-white" : "bg-gray-200"}`}
-            onClick={() => setContractTerm(term)}
-          >
-            {term}
-          </button>
-        ))}
-      </div>
-      
-      <div className="flex justify-between items-center mt-4">
-        <button type="button" className="text-blue-600">Reset</button>
-        <button type="submit" className="bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700">Next</button>
-      </div>
-    </div>
+
+      <button
+        type="submit"
+        className="mt-4 p-2 bg-blue-600 text-white rounded"
+        disabled={loading}
+      >
+        {loading ? "Placing Quote..." : "Placed Order"}
+      </button>
+    </form>
   );
 };
 

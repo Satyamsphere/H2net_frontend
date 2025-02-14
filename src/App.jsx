@@ -13,7 +13,9 @@ import BulkuploadData from './components/Officedata/BulkuploadData'
 import CreateOrganization from './components/Organization/CreateOrganization';
 import PartnershiprequestOrgId from './components/Admin/PartnershiprequestOrgId';
 import Association_appdis from './components/Admin/Association_appdis';
+import UKOfficeFormManual from './components/Officedata/UKOfficeFormManual';
 import { ToastContainer } from "react-toastify";
+import BulkSitesdataRetrival from './components/Admin/BulkSitesdataRetrival';
 import './App.css';
 
 function App() {
@@ -43,10 +45,12 @@ function App() {
             isLoggedIn ? <Dashboard /> : <Navigate to="/login" replace />
           } />
           <Route path="/office-form" element={<OfficeFormManual/>}/>
+          <Route path="/office-form-uk" element={<UKOfficeFormManual/>}/>
           <Route path="/blulk-upload" element={<BulkuploadData/>}/>
           <Route path="/create-org" element={<CreateOrganization/>}/>
           <Route path="/partnershipreq" element={<PartnershiprequestOrgId/>}/>
           <Route path="/Associationdis" element={<Association_appdis/>}/>
+          <Route path="/bulkstesdata" element={<BulkSitesdataRetrival/>}/>
         </Routes>
         <Footer />
       </div>

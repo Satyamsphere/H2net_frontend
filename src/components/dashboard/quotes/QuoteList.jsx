@@ -87,7 +87,7 @@ const QuoteList = () => {
     <div className="min-h-screen w-full bg-gray-100 p-6">
       <div className="container mx-auto bg-white shadow-lg rounded-lg p-6">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold">Quote List</h2>
+          <h2 className="text-lg font-semibold">Quote List </h2>
           <div className="flex space-x-2">
             <button 
               onClick={() => setShowFilters(!showFilters)} 

@@ -1,42 +1,61 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 export default function CustomerForm() {
+  const location = useLocation();
+  const [searchParams] = useSearchParams();
+  const galk = searchParams.get("galk");
+  const siteData = location.state?.siteData;
+ 
+
+
   const [formData, setFormData] = useState({
-    CustomerName: "",
-    Sitename: "",
-    SiteID: "",
+    CustomerName: siteData?.CustomerName  ||"",
+    Sitename: siteData?.Sitename || "",
+    SiteID: siteData?.SiteID || "",
     RoomName: "",
-    Zipcode: "",
-    Country: "",
+    Zipcode: siteData?.Zipcode || "",
+    Country: siteData?.Country || "",
   });
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     console.log("Submitted Data:", formData);
 
     try {
-      const response = await fetch("http://localhost:5000/api/quotes/fttpquotes", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+
+
+
+      const response = await fetch(
+        //"http://localhost:5000/api/quotes/fttpquotes",
+        `http://localhost:5000/api/quotes/sites/fttp/${siteData?.Galk}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+          Galk:galk,
+        },
+        
+      );
 
       const result = await response.json();
 
-      if (response.ok) {
+      if (response.ok)
+        {
         toast.success("✅ Data submitted successfully!", {
           position: "top-right",
           autoClose: 3000,
         });
         setFormData({
-          CustomerName: "",
-          Sitename: "",
-          SiteID: "",
+          CustomerName: siteData.CustomerName||"",
+          Sitename: siteData.Sitename || "",
+          SiteID: siteData.SiteID || "",
           RoomName: "",
-          Zipcode: "",
-          Country: "",
+          Zipcode: siteData.Zipcode || "",
+          Country: siteData?.Country || "",
         });
         console.log("Form submitted:", result);
       } else {
@@ -70,37 +89,51 @@ export default function CustomerForm() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter Customer Name"
                 value={formData.CustomerName}
-                onChange={(e) => setFormData({ ...formData, CustomerName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, CustomerName: e.target.value })
+                }
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Site Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Site Name
+              </label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter Site Name"
                 value={formData.Sitename}
-                onChange={(e) => setFormData({ ...formData, Sitename: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, Sitename: e.target.value })
+                }
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Site ID</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Site ID
+              </label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter Site ID"
                 value={formData.SiteID}
-                onChange={(e) => setFormData({ ...formData, SiteID: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, SiteID: e.target.value })
+                }
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Room Name</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Room Name
+              </label>
               <input
                 type="text"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter Room Name"
                 value={formData.RoomName}
-                onChange={(e) => setFormData({ ...formData, RoomName: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, RoomName: e.target.value })
+                }
               />
             </div>
             <div>
@@ -112,218 +145,222 @@ export default function CustomerForm() {
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 placeholder="Enter Zip Code"
                 value={formData.Zipcode}
-                onChange={(e) => setFormData({ ...formData, Zipcode: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, Zipcode: e.target.value })
+                }
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Country</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Country
+              </label>
               <select
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500"
                 value={formData.Country}
-                onChange={(e) => setFormData({ ...formData, Country: e.target.value })}
+                onChange={(e) =>
+                  setFormData({ ...formData, Country: e.target.value })
+                }
               >
                 <option value="">Select a country</option>
                 {[
-              "Afghanistan",
-              "Albania",
-              "Algeria",
-              "Andorra",
-              "Angola",
-              "Antigua and Barbuda",
-              "Argentina",
-              "Armenia",
-              "Australia",
-              "Austria",
-              "Azerbaijan",
-              "Bahamas",
-              "Bahrain",
-              "Bangladesh",
-              "Barbados",
-              "Belarus",
-              "Belgium",
-              "Belize",
-              "Benin",
-              "Bhutan",
-              "Bolivia",
-              "Bosnia and Herzegovina",
-              "Botswana",
-              "Brazil",
-              "Brunei",
-              "Bulgaria",
-              "Burkina Faso",
-              "Burundi",
-              "Cabo Verde",
-              "Cambodia",
-              "Cameroon",
-              "Canada",
-              "Central African Republic",
-              "Chad",
-              "Chile",
-              "China",
-              "Colombia",
-              "Comoros",
-              "Congo (Congo-Brazzaville)",
-              "Costa Rica",
-              "Croatia",
-              "Cuba",
-              "Cyprus",
-              "Czechia",
-              "Democratic Republic of the Congo",
-              "Denmark",
-              "Djibouti",
-              "Dominica",
-              "Dominican Republic",
-              "Ecuador",
-              "Egypt",
-              "El Salvador",
-              "Equatorial Guinea",
-              "Eritrea",
-              "Estonia",
-              "Eswatini (Swaziland)",
-              "Ethiopia",
-              "Fiji",
-              "Finland",
-              "France",
-              "Gabon",
-              "Gambia",
-              "Georgia",
-              "Germany",
-              "Ghana",
-              "Greece",
-              "Grenada",
-              "Guatemala",
-              "Guinea",
-              "Guinea-Bissau",
-              "Guyana",
-              "Haiti",
-              "Honduras",
-              "Hungary",
-              "Iceland",
-              "India",
-              "Indonesia",
-              "Iran",
-              "Iraq",
-              "Ireland",
-              "Israel",
-              "Italy",
-              "Jamaica",
-              "Japan",
-              "Jordan",
-              "Kazakhstan",
-              "Kenya",
-              "Kiribati",
-              "Kuwait",
-              "Kyrgyzstan",
-              "Laos",
-              "Latvia",
-              "Lebanon",
-              "Lesotho",
-              "Liberia",
-              "Libya",
-              "Liechtenstein",
-              "Lithuania",
-              "Luxembourg",
-              "Madagascar",
-              "Malawi",
-              "Malaysia",
-              "Maldives",
-              "Mali",
-              "Malta",
-              "Marshall Islands",
-              "Mauritania",
-              "Mauritius",
-              "Mexico",
-              "Micronesia",
-              "Moldova",
-              "Monaco",
-              "Mongolia",
-              "Montenegro",
-              "Morocco",
-              "Mozambique",
-              "Myanmar (Burma)",
-              "Namibia",
-              "Nauru",
-              "Nepal",
-              "Netherlands",
-              "New Zealand",
-              "Nicaragua",
-              "Niger",
-              "Nigeria",
-              "North Korea",
-              "North Macedonia",
-              "Norway",
-              "Oman",
-              "Pakistan",
-              "Palau",
-              "Panama",
-              "Papua New Guinea",
-              "Paraguay",
-              "Peru",
-              "Philippines",
-              "Poland",
-              "Portugal",
-              "Qatar",
-              "Romania",
-              "Russia",
-              "Rwanda",
-              "Saint Kitts and Nevis",
-              "Saint Lucia",
-              "Saint Vincent and the Grenadines",
-              "Samoa",
-              "San Marino",
-              "Sao Tome and Principe",
-              "Saudi Arabia",
-              "Senegal",
-              "Serbia",
-              "Seychelles",
-              "Sierra Leone",
-              "Singapore",
-              "Slovakia",
-              "Slovenia",
-              "Solomon Islands",
-              "Somalia",
-              "South Africa",
-              "South Korea",
-              "South Sudan",
-              "Spain",
-              "Sri Lanka",
-              "Sudan",
-              "Suriname",
-              "Sweden",
-              "Switzerland",
-              "Syria",
-              "Tajikistan",
-              "Tanzania",
-              "Thailand",
-              "Timor-Leste",
-              "Togo",
-              "Tonga",
-              "Trinidad and Tobago",
-              "Tunisia",
-              "Turkey",
-              "Turkmenistan",
-              "Tuvalu",
-              "Uganda",
-              "Ukraine",
-              "United Arab Emirates",
-              "United Kingdom",
-              "United States",
-              "Uruguay",
-              "Uzbekistan",
-              "Vanuatu",
-              "Vatican City",
-              "Venezuela",
-              "Vietnam",
-              "Yemen",
-              "Zambia",
-              "Zimbabwe",
-            ].map(
-                  (country, index) => (
-                    <option key={index} value={country}>
-                      {country}
-                    </option>
-                  )
-                )}
+                  "Afghanistan",
+                  "Albania",
+                  "Algeria",
+                  "Andorra",
+                  "Angola",
+                  "Antigua and Barbuda",
+                  "Argentina",
+                  "Armenia",
+                  "Australia",
+                  "Austria",
+                  "Azerbaijan",
+                  "Bahamas",
+                  "Bahrain",
+                  "Bangladesh",
+                  "Barbados",
+                  "Belarus",
+                  "Belgium",
+                  "Belize",
+                  "Benin",
+                  "Bhutan",
+                  "Bolivia",
+                  "Bosnia and Herzegovina",
+                  "Botswana",
+                  "Brazil",
+                  "Brunei",
+                  "Bulgaria",
+                  "Burkina Faso",
+                  "Burundi",
+                  "Cabo Verde",
+                  "Cambodia",
+                  "Cameroon",
+                  "Canada",
+                  "Central African Republic",
+                  "Chad",
+                  "Chile",
+                  "China",
+                  "Colombia",
+                  "Comoros",
+                  "Congo (Congo-Brazzaville)",
+                  "Costa Rica",
+                  "Croatia",
+                  "Cuba",
+                  "Cyprus",
+                  "Czechia",
+                  "Democratic Republic of the Congo",
+                  "Denmark",
+                  "Djibouti",
+                  "Dominica",
+                  "Dominican Republic",
+                  "Ecuador",
+                  "Egypt",
+                  "El Salvador",
+                  "Equatorial Guinea",
+                  "Eritrea",
+                  "Estonia",
+                  "Eswatini (Swaziland)",
+                  "Ethiopia",
+                  "Fiji",
+                  "Finland",
+                  "France",
+                  "Gabon",
+                  "Gambia",
+                  "Georgia",
+                  "Germany",
+                  "Ghana",
+                  "Greece",
+                  "Grenada",
+                  "Guatemala",
+                  "Guinea",
+                  "Guinea-Bissau",
+                  "Guyana",
+                  "Haiti",
+                  "Honduras",
+                  "Hungary",
+                  "Iceland",
+                  "India",
+                  "Indonesia",
+                  "Iran",
+                  "Iraq",
+                  "Ireland",
+                  "Israel",
+                  "Italy",
+                  "Jamaica",
+                  "Japan",
+                  "Jordan",
+                  "Kazakhstan",
+                  "Kenya",
+                  "Kiribati",
+                  "Kuwait",
+                  "Kyrgyzstan",
+                  "Laos",
+                  "Latvia",
+                  "Lebanon",
+                  "Lesotho",
+                  "Liberia",
+                  "Libya",
+                  "Liechtenstein",
+                  "Lithuania",
+                  "Luxembourg",
+                  "Madagascar",
+                  "Malawi",
+                  "Malaysia",
+                  "Maldives",
+                  "Mali",
+                  "Malta",
+                  "Marshall Islands",
+                  "Mauritania",
+                  "Mauritius",
+                  "Mexico",
+                  "Micronesia",
+                  "Moldova",
+                  "Monaco",
+                  "Mongolia",
+                  "Montenegro",
+                  "Morocco",
+                  "Mozambique",
+                  "Myanmar (Burma)",
+                  "Namibia",
+                  "Nauru",
+                  "Nepal",
+                  "Netherlands",
+                  "New Zealand",
+                  "Nicaragua",
+                  "Niger",
+                  "Nigeria",
+                  "North Korea",
+                  "North Macedonia",
+                  "Norway",
+                  "Oman",
+                  "Pakistan",
+                  "Palau",
+                  "Panama",
+                  "Papua New Guinea",
+                  "Paraguay",
+                  "Peru",
+                  "Philippines",
+                  "Poland",
+                  "Portugal",
+                  "Qatar",
+                  "Romania",
+                  "Russia",
+                  "Rwanda",
+                  "Saint Kitts and Nevis",
+                  "Saint Lucia",
+                  "Saint Vincent and the Grenadines",
+                  "Samoa",
+                  "San Marino",
+                  "Sao Tome and Principe",
+                  "Saudi Arabia",
+                  "Senegal",
+                  "Serbia",
+                  "Seychelles",
+                  "Sierra Leone",
+                  "Singapore",
+                  "Slovakia",
+                  "Slovenia",
+                  "Solomon Islands",
+                  "Somalia",
+                  "South Africa",
+                  "South Korea",
+                  "South Sudan",
+                  "Spain",
+                  "Sri Lanka",
+                  "Sudan",
+                  "Suriname",
+                  "Sweden",
+                  "Switzerland",
+                  "Syria",
+                  "Tajikistan",
+                  "Tanzania",
+                  "Thailand",
+                  "Timor-Leste",
+                  "Togo",
+                  "Tonga",
+                  "Trinidad and Tobago",
+                  "Tunisia",
+                  "Turkey",
+                  "Turkmenistan",
+                  "Tuvalu",
+                  "Uganda",
+                  "Ukraine",
+                  "United Arab Emirates",
+                  "United Kingdom",
+                  "United States",
+                  "Uruguay",
+                  "Uzbekistan",
+                  "Vanuatu",
+                  "Vatican City",
+                  "Venezuela",
+                  "Vietnam",
+                  "Yemen",
+                  "Zambia",
+                  "Zimbabwe",
+                ].map((country, index) => (
+                  <option key={index} value={country}>
+                    {country}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
