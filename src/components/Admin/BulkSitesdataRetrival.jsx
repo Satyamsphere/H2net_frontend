@@ -2,13 +2,20 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { motion } from "framer-motion";
 
+const PAGE_SIZE = 12;
+
 const BulkSitesdataRetrival = () => {
-  const [data, setData] = useState([]);
-  const [filteredData, setFilteredData] = useState([]);
+  const [data, setData] = useState([]); // All data fetched from the API
+  const [filteredData, setFilteredData] = useState([]); // Data after applying filters
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false);
 
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+  // Filters state
   const [filters, setFilters] = useState({
     CustomerName: "",
     Galk: "",
@@ -20,11 +27,11 @@ const BulkSitesdataRetrival = () => {
     const fetchData = async () => {
       try {
         const response = await axios.get("http://localhost:5000/api/officedata/bulksitesdata");
-        setData(response.data.data);
-        setFilteredData(response.data.data);
+        setData(response.data.data); // Set all data
+        applyFilters(response.data.data); // Apply filters and pagination
+        setLoading(false);
       } catch (err) {
         setError(err.message);
-      } finally {
         setLoading(false);
       }
     };
@@ -32,17 +39,49 @@ const BulkSitesdataRetrival = () => {
     fetchData();
   }, []);
 
-  // Apply filters automatically when filters change
-  useEffect(() => {
+  // Apply filters and pagination
+  const applyFilters = (data) => {
     let filtered = data.filter((site) => {
       return (
-        (filters.CustomerName === "" || site.CustomerName?.toLowerCase().includes(filters.CustomerName.toLowerCase())) &&
-        (filters.Galk === "" || site.Galk?.toLowerCase().includes(filters.Galk.toLowerCase())) &&
-        (filters.SiteStatus === "" || site.SiteStatus.toString() === filters.SiteStatus)
+        (filters.CustomerName === "" ||
+          site.CustomerName?.toLowerCase().includes(filters.CustomerName.toLowerCase())) &&
+        (filters.Galk === "" ||
+          site.Galk?.toLowerCase().includes(filters.Galk.toLowerCase())) &&
+        (filters.SiteStatus === "" ||
+          site.SiteStatus.toString() === filters.SiteStatus)
       );
     });
 
-    setFilteredData(filtered);
+    setFilteredData(filtered); // Set filtered data
+    setTotalPages(Math.ceil(filtered.length / PAGE_SIZE)); // Calculate total pages
+    applyPagination(filtered, currentPage); // Apply pagination
+  };
+
+  // Apply pagination to filtered data
+  const applyPagination = (data, page) => {
+    const startIndex = (page - 1) * PAGE_SIZE;
+    const paginatedData = data.slice(startIndex, startIndex + PAGE_SIZE);
+    setFilteredData(paginatedData); // Set paginated data
+  };
+
+  // Handle page change
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+      applyPagination(data, currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+      applyPagination(data, currentPage - 1);
+    }
+  };
+
+  // Update filters and reapply filtering
+  useEffect(() => {
+    applyFilters(data);
   }, [filters, data]);
 
   if (loading) return <p className="text-center text-xl font-semibold">Loading...</p>;
@@ -91,7 +130,7 @@ const BulkSitesdataRetrival = () => {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
       >
-        Bulk Uploaded Site Data
+       Admin-Bulk Uploaded Site Data
       </motion.h2>
 
       <div className="overflow-x-auto">
@@ -152,6 +191,27 @@ const BulkSitesdataRetrival = () => {
             ))}
           </tbody>
         </motion.table>
+      </div>
+
+      {/* Pagination Controls */}
+      <div className="mt-4 flex justify-center items-center gap-4">
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-blue-500 text-white rounded shadow disabled:bg-gray-300"
+        >
+          Previous
+        </button>
+        <span>
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-blue-500 text-white rounded shadow disabled:bg-gray-300"
+        >
+          Next
+        </button>
       </div>
     </div>
   );

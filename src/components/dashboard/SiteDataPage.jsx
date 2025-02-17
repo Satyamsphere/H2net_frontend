@@ -4,13 +4,47 @@ import axios from "axios";
 import Modal from "../Modal/Modal";
 
 
+const PAGE_SIZE = 10; 
 const SiteDataPage = () => {
   const [siteData, setSiteData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showFilters, setShowFilters] = useState(false); // Hide filters initially
-  
+
+
+  //pagination state  // Pagination Logic
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+
+
+
+
+  const applyPagination = (data, page) => {
+    const startIndex = (page - 1) * PAGE_SIZE;
+    const paginatedData = data.slice(startIndex, startIndex + PAGE_SIZE);
+    setFilteredData(paginatedData);
+    setTotalPages(Math.ceil(data.length / PAGE_SIZE));
+  };
+
+
+  const nextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+      applyPagination(siteData, currentPage + 1);
+    }
+  };
+
+  const prevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+      applyPagination(siteData, currentPage - 1);
+    }
+  };
+
+
+
   const [filters, setFilters] = useState({
     SiteStatus: "", // Default value (true/false)
     CustomerName: "",
@@ -40,6 +74,7 @@ const SiteDataPage = () => {
       );
       setSiteData(response.data.data);
       setFilteredData(response.data.data);
+      applyPagination(response.data.data, 1);
       setLoading(false);
     } catch (error) {
       console.error("Error fetching site data:", error);
@@ -56,7 +91,7 @@ const SiteDataPage = () => {
   const handleDelete = async (id) => {
     try {
       await axios.delete(`http://localhost:5000/api/officedata/delete/${id}`);
-     
+
       fetchData(); // Refresh the data after deletion
     } catch (error) {
       console.error("Error deleting office data:", error);
@@ -147,6 +182,7 @@ const SiteDataPage = () => {
     });
 
     setFilteredData(filtered);
+    setCurrentPage(1); // Reset to the first page after applying filters
   };
 
   //to download csv file from download button
@@ -289,8 +325,6 @@ const SiteDataPage = () => {
         >
           🔄 Refresh
         </button>
-
-
       </div>
 
       {/* Filters - Show Only If Button Clicked */}
@@ -382,8 +416,6 @@ const SiteDataPage = () => {
 
               <td className="border p-4">
                 <div className="flex flex-wrap gap-3">
-
-
                   <button
                     onClick={() => handleEdit(site)}
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition"
@@ -391,35 +423,38 @@ const SiteDataPage = () => {
                     ✏️ Edit
                   </button>
 
-      {/* Delete Button */}
-      <button
-        onClick={() => {
-          setItemToDelete(site._id); // Set the ID of the item to delete
-          setDeleteModalOpen(true); // Open the delete confirmation modal
-        }}
-       className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition"
-        >🗑️ Delete
-      </button>
+                  {/* Delete Button */}
+                  <button
+                    onClick={() => {
+                      setItemToDelete(site._id); // Set the ID of the item to delete
+                      setDeleteModalOpen(true); // Open the delete confirmation modal
+                    }}
+                    className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition"
+                  >
+                    🗑️ Delete
+                  </button>
 
-      
-      <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)}>
-        <h3 className="text-lg font-bold mb-4">Warning</h3>
-        <p>Are you sure you want to delete this office data?</p>
-        <div className="mt-4 flex justify-end">
-          <button
-            onClick={() => handleDelete(itemToDelete)} // Delete the item
-            className="px-4 py-2 bg-red-500 text-white rounded shadow mr-2"
-          >
-            OK
-          </button>
-          <button
-            onClick={() => setDeleteModalOpen(false)} // Close the modal
-            className="px-4 py-2 bg-gray-500 text-white rounded shadow"
-          >
-            Cancel
-          </button>
-        </div>
-      </Modal>
+                  <Modal
+                    isOpen={deleteModalOpen}
+                    onClose={() => setDeleteModalOpen(false)}
+                  >
+                    <h3 className="text-lg font-bold mb-4">Warning</h3>
+                    <p>Are you sure you want to delete this office data?</p>
+                    <div className="mt-4 flex justify-end">
+                      <button
+                        onClick={() => handleDelete(itemToDelete)} // Delete the item
+                        className="px-4 py-2 bg-red-500 text-white rounded shadow mr-2"
+                      >
+                        OK
+                      </button>
+                      <button
+                        onClick={() => setDeleteModalOpen(false)} // Close the modal
+                        className="px-4 py-2 bg-gray-500 text-white rounded shadow"
+                      >
+                        Cancel
+                      </button>
+                    </div>
+                  </Modal>
                   <button
                     className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition"
                     onClick={() => handleDiaQuote(site)}
@@ -447,59 +482,77 @@ const SiteDataPage = () => {
         </tbody>
       </table>
 
+
+      {/* Pagination Controls */}
+      <div className="flex justify-between items-center mt-4">
+        <button onClick={prevPage} disabled={currentPage === 1} className="px-4 py-2 bg-gray-500 text-white rounded shadow disabled:opacity-50">
+          ◀️ Previous
+        </button>
+        <span className="text-lg">Page {currentPage} of {totalPages}</span>
+        <button onClick={nextPage} disabled={currentPage === totalPages} className="px-4 py-2 bg-gray-500 text-white rounded shadow disabled:opacity-50">
+          Next ▶️
+        </button>
+      </div>
+
+
+
+
+
+ 
+
       {/* Edit Form - Only Show When Editing */}
       {editingId && (
         <div className="mt-6 p-4 border rounded bg-gray-100">
-                    <Modal isOpen={!!editingId} onClose={() => setEditingId(null)}>
-          <h3 className="text-lg font-bold mb-2">Edit Office Data</h3>
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              "CustomerName",
-              "Sitename",
-              "SiteID",
-              "RoomName",
-              "BuildingName",
-              "Street",
-              "City",
-              "Zipcode",
-              "Country",
-              "Galk",
-              "Notes",
-            ].map((key) => (
-              <input
-                key={key}
-                name={key}
-                type="text"
-                placeholder={key}
-                value={editFormData[key] || ""}
+          <Modal isOpen={!!editingId} onClose={() => setEditingId(null)}>
+            <h3 className="text-lg font-bold mb-2">Edit Office Data</h3>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                "CustomerName",
+                "Sitename",
+                "SiteID",
+                "RoomName",
+                "BuildingName",
+                "Street",
+                "City",
+                "Zipcode",
+                "Country",
+                "Galk",
+                "Notes",
+              ].map((key) => (
+                <input
+                  key={key}
+                  name={key}
+                  type="text"
+                  placeholder={key}
+                  value={editFormData[key] || ""}
+                  onChange={handleEditChange}
+                  className="p-2 border border-gray-300 rounded"
+                />
+              ))}
+              <select
+                name="SiteStatus"
+                value={editFormData.SiteStatus}
                 onChange={handleEditChange}
                 className="p-2 border border-gray-300 rounded"
-              />
-            ))}
-            <select
-              name="SiteStatus"
-              value={editFormData.SiteStatus}
-              onChange={handleEditChange}
-              className="p-2 border border-gray-300 rounded"
-            >
-              <option value="true">Active</option>
-              <option value="false">Inactive</option>
-            </select>
-          </div>
-          <div className="mt-4">
-            <button
-              onClick={handleUpdate}
-              className="px-4 py-2 bg-green-500 text-white rounded shadow mr-2"
-            >
-              💾 Save
-            </button>
-            <button
-              onClick={() => setEditingId(null)}
-              className="px-4 py-2 bg-gray-500 text-white rounded shadow"
-            >
-              ❌ Cancel
-            </button>
-          </div>
+              >
+                <option value="true">Active</option>
+                <option value="false">Inactive</option>
+              </select>
+            </div>
+            <div className="mt-4">
+              <button
+                onClick={handleUpdate}
+                className="px-4 py-2 bg-green-500 text-white rounded shadow mr-2"
+              >
+                💾 Save
+              </button>
+              <button
+                onClick={() => setEditingId(null)}
+                className="px-4 py-2 bg-gray-500 text-white rounded shadow"
+              >
+                ❌ Cancel
+              </button>
+            </div>
           </Modal>
         </div>
       )}
