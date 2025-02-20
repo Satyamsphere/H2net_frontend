@@ -47,6 +47,8 @@ const SiteDataPage = () => {
 
   const [filters, setFilters] = useState({
     SiteStatus: "", // Default value (true/false)
+    deletedsite:false,
+    deletedAt: null,
     CustomerName: "",
     Sitename: "",
     SiteID: "",
@@ -72,6 +74,7 @@ const SiteDataPage = () => {
       const response = await axios.get(
         "http://localhost:5000/api/officedata/sitedata"
       );
+      console.log(response.data.data);
       setSiteData(response.data.data);
       setFilteredData(response.data.data);
       applyPagination(response.data.data, 1);
@@ -132,55 +135,38 @@ const SiteDataPage = () => {
   //to filter the data
   const applyFilters = () => {
     let filtered = siteData.filter((site) => {
+      // Handle deleted sites filter
+      if (filters.SiteStatus === "deleted") {
+        // Show only deleted sites
+        return site.deletedsite === true && site.deletedAt !== null;
+      } else {
+        // Hide deleted sites unless the "deleted" filter is selected
+        if (site.deletedsite === true && site.deletedAt !== null) {
+          return false; // Exclude deleted sites
+        }
+      }
+  
+      // Apply other filters
       return (
-        (filters.SiteStatus === "" ||
-          site.SiteStatus?.toString() === filters.SiteStatus) &&
-        (filters.CustomerName === "" ||
-          (site.CustomerName?.toLowerCase() || "").includes(
-            filters.CustomerName.toLowerCase()
-          )) &&
-        (filters.Sitename === "" ||
-          (site.Sitename?.toLowerCase() || "").includes(
-            filters.Sitename.toLowerCase()
-          )) &&
-        (filters.SiteID === "" ||
-          (site.SiteID?.toLowerCase() || "").includes(
-            filters.SiteID.toLowerCase()
-          )) &&
-        (filters.RoomName === "" ||
-          (site.RoomName?.toLowerCase() || "").includes(
-            filters.RoomName.toLowerCase()
-          )) &&
-        (filters.BuildingName === "" ||
-          (site.BuildingName?.toLowerCase() || "").includes(
-            filters.BuildingName.toLowerCase()
-          )) &&
-        (filters.Street === "" ||
-          (site.Street?.toLowerCase() || "").includes(
-            filters.Street.toLowerCase()
-          )) &&
-        (filters.City === "" ||
-          (site.City?.toLowerCase() || "").includes(
-            filters.City.toLowerCase()
-          )) &&
-        (filters.Zipcode === "" ||
-          (site.Zipcode?.toString() || "").includes(filters.Zipcode)) &&
-        (filters.Country === "" ||
-          (site.Country?.toLowerCase() || "").includes(
-            filters.Country.toLowerCase()
-          )) &&
-        (filters.Galk === "" ||
-          (site.Galk !== undefined &&
-            site.Galk.toString()
-              .toLowerCase()
-              .includes(filters.Galk.toLowerCase()))) &&
-        (filters.Notes === "" ||
-          (site.Notes?.toLowerCase() || "").includes(
-            filters.Notes.toLowerCase()
-          ))
+        // Site Status Filter
+        (filters.SiteStatus === "" || site.SiteStatus?.toString() === filters.SiteStatus) &&
+  
+        // Text Search Filters
+        (filters.CustomerName === "" || site.CustomerName?.toLowerCase().includes(filters.CustomerName.toLowerCase())) &&
+        (filters.Sitename === "" || site.Sitename?.toLowerCase().includes(filters.Sitename.toLowerCase())) &&
+        (filters.SiteID === "" || site.SiteID?.toLowerCase().includes(filters.SiteID.toLowerCase())) &&
+        (filters.RoomName === "" || site.RoomName?.toLowerCase().includes(filters.RoomName.toLowerCase())) &&
+        (filters.BuildingName === "" || site.BuildingName?.toLowerCase().includes(filters.BuildingName.toLowerCase())) &&
+        (filters.Street === "" || site.Street?.toLowerCase().includes(filters.Street.toLowerCase())) &&
+        (filters.City === "" || site.City?.toLowerCase().includes(filters.City.toLowerCase())) &&
+        (filters.Zipcode === "" || site.Zipcode?.toString().includes(filters.Zipcode)) &&
+        (filters.Country === "" || site.Country?.toLowerCase().includes(filters.Country.toLowerCase())) &&
+        (filters.Galk === "" || (site.Galk?.toString().toLowerCase().includes(filters.Galk.toLowerCase()))) &&
+        (filters.Notes === "" || site.Notes?.toLowerCase().includes(filters.Notes.toLowerCase()))
       );
     });
-
+  
+    console.log(filtered);
     setFilteredData(filtered);
     setCurrentPage(1); // Reset to the first page after applying filters
   };
@@ -326,7 +312,7 @@ const SiteDataPage = () => {
           🔄 Refresh
         </button>
       </div>
-
+  
       {/* Filters - Show Only If Button Clicked */}
       {showFilters && (
         <div className="bg-gray-100 p-4 rounded-md mb-4">
@@ -342,6 +328,7 @@ const SiteDataPage = () => {
               <option value="">All Status</option>
               <option value="true">Active</option>
               <option value="false">Inactive</option>
+              <option value="deleted">Deleted</option> {/* New option for deleted sites */}
             </select>
             {[
               "CustomerName",
@@ -376,130 +363,135 @@ const SiteDataPage = () => {
           </button>
         </div>
       )}
-
+  
       {/* Data Table */}
-      <table className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr className="bg-gray-200">
-            <th className="border p-2">Customer Name</th>
-            <th className="border p-2">Site Name</th>
-            <th className="border p-2">Site ID</th>
-            <th className="border p-2">Room Name</th>
-            <th className="border p-2">Building</th>
-            <th className="border p-2">Street</th>
-            <th className="border p-2">City</th>
-            <th className="border p-2">Zipcode</th>
-            <th className="border p-2">Country</th>
-            <th className="border p-2">Galk</th>
-            <th className="border p-2">Status</th>
-            <th className="border p-2">Operation</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredData.map((site, index) => (
-            <tr key={site._id || index} className="text-center border-b">
-              <td className="border p-2">{site.CustomerName}</td>
-              <td className="border p-2">{site.Sitename}</td>
-              <td className="border p-2">{site.SiteID}</td>
-              <td className="border p-2">{site.RoomName}</td>
-              <td className="border p-2">{site.BuildingName}</td>
-              <td className="border p-2">{site.Street}</td>
-              <td className="border p-2">{site.City}</td>
-              <td className="border p-2">{site.Zipcode}</td>
-              <td className="border p-2">{site.Country}</td>
-              <td className="border p-2">{site.Galk}</td>
-              <td className="border p-2 font-bold text-white">
-                <span className={site.SiteStatus ? "" : ""}>
-                  {site.SiteStatus ? "✅" : "❌"}
-                </span>
-              </td>
-
-              <td className="border p-4">
-                <div className="flex flex-wrap gap-3">
-                  <button
-                    onClick={() => handleEdit(site)}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition"
-                  >
-                    ✏️ Edit
-                  </button>
-
-                  {/* Delete Button */}
-                  <button
-                    onClick={() => {
-                      setItemToDelete(site._id); // Set the ID of the item to delete
-                      setDeleteModalOpen(true); // Open the delete confirmation modal
-                    }}
-                    className="bg-red-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-red-600 transition"
-                  >
-                    🗑️ Delete
-                  </button>
-
-                  <Modal
-                    isOpen={deleteModalOpen}
-                    onClose={() => setDeleteModalOpen(false)}
-                  >
-                    <h3 className="text-lg font-bold mb-4">Warning</h3>
-                    <p>Are you sure you want to delete this office data?</p>
-                    <div className="mt-4 flex justify-end">
-                      <button
-                        onClick={() => handleDelete(itemToDelete)} // Delete the item
-                        className="px-4 py-2 bg-red-500 text-white rounded shadow mr-2"
-                      >
-                        OK
-                      </button>
-                      <button
-                        onClick={() => setDeleteModalOpen(false)} // Close the modal
-                        className="px-4 py-2 bg-gray-500 text-white rounded shadow"
-                      >
-                        Cancel
-                      </button>
-                    </div>
-                  </Modal>
-                  <button
-                    className="bg-blue-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-blue-600 transition"
-                    onClick={() => handleDiaQuote(site)}
-                  >
-                    DIA Quotes
-                  </button>
-
-                  <button
-                    className="bg-green-500 text-white px-4 py-2 rounded-lg shadow-md hover:bg-green-600 transition"
-                    onClick={() => handleFttpQuote(site)}
-                  >
-                    FTTP Quotes
-                  </button>
-
-                  <button
-                    className="bg-purple-500 text-white px-6 py-2 rounded-lg shadow-md hover:bg-purple-600 transition"
-                    onClick={() => handleP2pQuote(site)}
-                  >
-                    P2P Quotes
-                  </button>
-                </div>
-              </td>
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-gray-300 table-fixed">
+          <thead>
+            <tr className="bg-gray-200">
+              {[
+                "Customer Name",
+                "Site Name",
+                "Site ID",
+                "Room Name",
+                "Building",
+                "Street",
+                "City",
+                "Zipcode",
+                "Country",
+                "Galk",
+                "Status",
+                "Operation",
+              ].map((header, index) => (
+                <th key={index} className="border p-2 min-w-[100px]">
+                  {header}
+                </th>
+              ))}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+  
+          <tbody>
+  {filteredData.map((site, index) => {
+    const isDeleted = site.deletedsite === true && site.deletedAt !== null;
+    return (
+      <tr
+        key={site._id || index}
+        className={`text-center border-b ${isDeleted ? "bg-red-100 line-through" : ""}`}
+      >
+        <td className="border p-2">{site.CustomerName}</td>
+        <td className="border p-2">{site.Sitename}</td>
+        <td className="border p-2">{site.SiteID}</td>
+        <td className="border p-2">{site.RoomName}</td>
+        <td className="border p-2">{site.BuildingName}</td>
+        <td className="border p-2">{site.Street}</td>
+        <td className="border p-2">{site.City}</td>
+        <td className="border p-2">{site.Zipcode}</td>
+        <td className="border p-2">{site.Country}</td>
+        <td className="border p-2">{site.Galk}</td>
+        <td className="border p-2 font-bold">
+          {isDeleted ? `🗑️ Deleted (${site.deletedAt})` : site.SiteStatus ? "✅" : "❌"}
+        </td>
+        {/* Operations Column */}
+        <td className="border p-2">
+          <div className="flex flex-wrap justify-center gap-2">
+            {/* Edit Button */}
+            {!isDeleted && (
+              <button
+                onClick={() => handleEdit(site)}
+                className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition"
+              >
+                ✏️ Edit
+              </button>
+            )}
 
+            {/* Delete Button */}
+            {!isDeleted && (
+              <button
+                onClick={() => {
+                  setItemToDelete(site._id);
+                  setDeleteModalOpen(true);
+                }}
+                className="bg-red-500 text-white px-3 py-1 rounded-lg hover:bg-red-600 transition"
+              >
+                🗑️ Delete
+              </button>
+            )}
 
+            {/* Quote Buttons */}
+            {!isDeleted && (
+              <>
+                <button
+                  className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition"
+                  onClick={() => handleDiaQuote(site)}
+                >
+                  DIA Quotes
+                </button>
+
+                <button
+                  className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition"
+                  onClick={() => handleFttpQuote(site)}
+                >
+                  FTTP Quotes
+                </button>
+
+                <button
+                  className="bg-purple-500 text-white px-3 py-1 rounded-lg hover:bg-purple-600 transition"
+                  onClick={() => handleP2pQuote(site)}
+                >
+                  P2P Quotes
+                </button>
+              </>
+            )}
+          </div>
+        </td>
+      </tr>
+    );
+  })}
+</tbody>
+        </table>
+      </div>
+  
       {/* Pagination Controls */}
       <div className="flex justify-between items-center mt-4">
-        <button onClick={prevPage} disabled={currentPage === 1} className="px-4 py-2 bg-gray-500 text-white rounded shadow disabled:opacity-50">
+        <button
+          onClick={prevPage}
+          disabled={currentPage === 1}
+          className="px-4 py-2 bg-gray-500 text-white rounded shadow disabled:opacity-50"
+        >
           ◀️ Previous
         </button>
-        <span className="text-lg">Page {currentPage} of {totalPages}</span>
-        <button onClick={nextPage} disabled={currentPage === totalPages} className="px-4 py-2 bg-gray-500 text-white rounded shadow disabled:opacity-50">
+        <span className="text-lg">
+          Page {currentPage} of {totalPages}
+        </span>
+        <button
+          onClick={nextPage}
+          disabled={currentPage === totalPages}
+          className="px-4 py-2 bg-gray-500 text-white rounded shadow disabled:opacity-50"
+        >
           Next ▶️
         </button>
       </div>
-
-
-
-
-
- 
-
+  
       {/* Edit Form - Only Show When Editing */}
       {editingId && (
         <div className="mt-6 p-4 border rounded bg-gray-100">
@@ -536,7 +528,7 @@ const SiteDataPage = () => {
                 className="p-2 border border-gray-300 rounded"
               >
                 <option value="true">Active</option>
-                <option value="false">Inactive</option>
+                <option value="false">InActive</option>
               </select>
             </div>
             <div className="mt-4">
