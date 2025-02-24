@@ -1,6 +1,12 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const Hero = () => {
+  const navigate = useNavigate();
+
+  const handleRegister = () => {
+    navigate("/userregister");
+  };
   return (
     <div className="bg-gradient-to-r from-blue-50 to-indigo-50 py-20">
       <div className="max-w-7xl mx-auto px-4">
@@ -12,7 +18,9 @@ const Hero = () => {
             <p className="text-xl text-gray-600 mb-8 animate-slide-up delay-200">
               Join forces with industry leaders to drive innovation and growth through our strategic partnership program.
             </p>
-            <button className="bg-h2net-blue text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 animate-slide-up delay-400">
+            <button 
+            onClick={handleRegister}
+            className="bg-h2net-blue text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 hover:scale-105 animate-slide-up delay-400">
               Get Started
             </button>
           </div>

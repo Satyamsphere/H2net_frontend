@@ -1,27 +1,53 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-const Register = () => {
+const ProductManagerRegister = () => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
     password: '',
-    confirmPassword: '',
   });
   const navigate = useNavigate();
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // Add registration logic here
-    console.log('Registration attempt:', formData);
+
+    try {
+      const response = await axios.post('http://localhost:5000/api/auth/productmanger/addnew', formData);
+      console.log(response.data)
+      
+      if (response.status === 201) { // Assuming 201 is the status code for successful creation
+        toast.success('productmanger account created successfully!', {
+          position: "top-right",
+          autoClose: 5000,
+          hideProgressBar: false,
+        });
+
+        // Optionally, you can navigate to another page after successful creation
+        // navigate('/login');
+      }
+    } catch (error) {
+      toast.error('Failed to create admin account. Please try again.', {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+      
+      });
+      console.error('Error creating admin account:', error);
+    }
   };
 
   return (
     <div className="min-h-[calc(100vh-200px)] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+        <ToastContainer />
       <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-md animate-fade-in">
         <div>
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create your account
+            Create ProductManager account
           </h2>
         </div>
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
@@ -52,6 +78,7 @@ const Register = () => {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               />
             </div>
+
             <div>
               <label htmlFor="password" className="sr-only">Password</label>
               <input
@@ -63,19 +90,6 @@ const Register = () => {
                 placeholder="Password"
                 value={formData.password}
                 onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-              />
-            </div>
-            <div>
-              <label htmlFor="confirmPassword" className="sr-only">Confirm password</label>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-h2net-blue focus:border-h2net-blue focus:z-10 sm:text-sm"
-                placeholder="Confirm password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData({ ...formData, confirmPassword: e.target.value })}
               />
             </div>
           </div>
@@ -99,8 +113,9 @@ const Register = () => {
           </p>
         </div>
       </div>
+      
     </div>
   );
 };
 
-export default Register;
+export default ProductManagerRegister;

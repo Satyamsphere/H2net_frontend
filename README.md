@@ -17,3 +17,12 @@ to this:-
   },
 
 then run > npm test
+
+
+Authencation routers for all user login and registers:-
+          <Route path="/login" element={<Login />} />
+          <Route path="/userregister" element={<UserRegister />} />
+          <Route path="/Adminregister" element={<AdminRegister />} />
+          <Route path="/ProductManagerregister" element={<ProductManagerRegister />} />
+          <Route path="/ProvisioningCoOrdinatorregister" element={<ProvisioningCoOrdinatorRegister />} />
+          <Route path="/reset-password" element={<ResetPassword />} />

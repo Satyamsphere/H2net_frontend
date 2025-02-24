@@ -134,16 +134,24 @@ const QuoteList = () => {
           <table className="w-full table-fixed border border-gray-300 bg-white text-sm">
             <thead>
               <tr className="bg-gray-200 text-gray-700">
-                {[
-                  "Customer Name", "Site Name", "Site ID", "Room Name", "Building",
-                  "Street Name", "Street Number", "City", "Zipcode", "Country", 
-                  "Galk", "Port Access Speed", "Contract Term", "Bandwidth", 
-                  "Access Providers", "IPv4 Subnet"
-                ].map((header) => (
-                  <th key={header} className="px-4 py-2 text-center border border-gray-300 font-medium w-[120px]">
-                    {header}
-                  </th>
-                ))}
+              <td className="border border-gray-300 text-center">Product Name</td>
+              <td className="border border-gray-300 text-center">ID</td>
+              <td className="border border-gray-300 text-center">Created Time</td>
+              <td className="border border-gray-300 text-center">Fesibility Expire</td>
+              <td className="border border-gray-300 text-center">A-End Customer Name</td>
+              <td className="border border-gray-300 text-center">B-End Customer Name</td>
+              <td className="border border-gray-300 text-center">A-End Customer postcode</td>
+              <td className="border border-gray-300 text-center">B-End Customer postcode</td>
+              <td className="border border-gray-300 text-center">Customer Name</td>
+              <td className="border border-gray-300 text-center">Galk</td>
+              <td className="border border-gray-300 text-center">Bandwidth</td>
+              <td className="border border-gray-300 text-center">Submitter Full Name</td>
+              <td className="border border-gray-300 text-center">Submitter Email</td>
+              <td className="border border-gray-300 text-center">Contract Length</td>
+              <td className="border border-gray-300 text-center">Bearer</td>
+              <td className="border border-gray-300 text-center">IP</td>
+
+
               </tr>
             </thead>
             <tbody>
